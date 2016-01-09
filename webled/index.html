@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB LED control</title>
+    <script>
+      function postCommand(command){
+        document.getElementById('hiddenCommand').value = command;
+        document.getElementById('mainForm').submit();
+      }
+    </script>
+  </head>
+  <body>
+    <h1>RGB LED control</h1>
+    <form method="post" id="mainForm">
+      <input type="hidden" name="command" value="" id="hiddenCommand">
+      <input type="button" value="Red" onclick="postCommand('Red');">
+      <input type="button" value="Green" onclick="postCommand('Green');">
+      <input type="button" value="Blue" onclick="postCommand('Blue');">
+      <input type="button" value="White" onclick="postCommand('White');">
+      <input type="button" value="Black" onclick="postCommand('Black');">
+      <input type="button" value="Two colors rotating" onclick="postCommand('Pattern2');">
+      <input type="button" value="Three colors rotating" onclick="postCommand('Pattern4');">
+      <input type="button" value="Tricolor" onclick="postCommand('Pattern3');">
+      <input type="button" value="Hue transition" onclick="postCommand('Pattern5');">
+      <input type="button" value="Hue rotation" onclick="postCommand('Pattern7');">
+    </form>
+  </body>
+</html>
