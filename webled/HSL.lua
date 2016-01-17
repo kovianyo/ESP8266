@@ -27,5 +27,5 @@ function HSL(hue, saturation, lightness, alpha)
       r,g,b=chroma,0,x
   end
   local m = lightness - chroma/2
-  return math.floor((r+m)*255),math.floor((g+m)*255),math.floor((b+m)*255),alpha
+  return math.max(math.floor((r+m)*255),0), math.max(math.floor((g+m)*255),0), math.max(math.floor((b+m)*255),0), alpha
 end
