@@ -1,0 +1,5 @@
+print("Starting up...")
+print("")
+dofile("utils.lua")
+dofileifexists("webserver.lua")
+dofileifexists("processcommand.lua")
