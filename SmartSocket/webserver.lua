@@ -84,7 +84,7 @@ srv:listen(80, function(conn)
   if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
   then
     conn:send(html1)
-    if x then conn:send("State: on")
+    if state then conn:send("State: on")
     else conn:send("State: off")
     end
     conn:send(html2)
