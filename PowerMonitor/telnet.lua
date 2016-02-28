@@ -113,19 +113,37 @@ wifi.sta.connect()
      end)
     end)
 
+    requested = nil
 
     function process(text)
         if startsWith(text, "GET /voltage")
-        then uart.write(0, getcommand(0xB0)) end
+        then
+          requested = 1
+          uart.write(0, getcommand(0xB0))
+        end
+
+        if startsWith(text, "GET /current")
+        then
+          requested = 2
+          uart.write(0, getcommand(0xB1))
+        end
+
+        if startsWith(text, "GET /power")
+        then
+          requested = 3
+          uart.write(0, getcommand(0xB2))
+        end
+
+        if startsWith(text, "GET /energy")
+        then
+          requested = 4
+          uart.write(0, getcommand(0xB3))
+        end
     end
 
 
     function startsWith(String,Start)
        return string.sub(String,1,string.len(Start))==Start
-    end
-
-    function getvoltage(data)
-      return (numat(data, 1) * 256 + numat(data, 2)) * 10 + numat(data, 3)
     end
 
     function numat(text, i)
@@ -134,7 +152,31 @@ wifi.sta.connect()
         return num
     end
 
-    uart.on("data", 7, function(data) if connection ~= nil then connection:send(getvoltage(data)) end end, 0)
+    function getvoltage(data)
+      return (numat(data, 1) * 256 + numat(data, 2)) * 10 + numat(data, 3)
+    end
+
+    function getcurrent(data)
+      return (numat(data, 1) * 256 + numat(data, 2))*100 + numat(data, 3)
+    end
+
+    function getpower(data)
+      return numat(data, 1) * 256 + numat(data, 2)
+    end
+
+    function getenergy(data)
+      return numat(data, 1) * 256 * 256 + numat(data, 2) * 256  + numat(data, 3)
+    end
+
+    function processdata(data)
+      if requested == 1 then connection:send(getvoltage(data)) end
+      if requested == 2 then connection:send(getcurrent(data)) end
+      if requested == 3 then connection:send(getpower(data)) end
+      if requested == 4 then connection:send(getenergy(data)) end
+    end
+
+
+    uart.on("data", 7, function(data) if connection ~= nil then processdata(data) end end, 0)
 
 
 
