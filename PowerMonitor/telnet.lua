@@ -124,17 +124,18 @@ wifi.sta.connect()
        return string.sub(String,1,string.len(Start))==Start
     end
 
-    uart.on("data", 7, function(data) if connection ~= nil then connection:send(getnum(data)) end end, 0)
-
     function getvoltage(data)
       return (numat(data, 1) * 256 + numat(data, 2)) * 10 + numat(data, 3)
     end
 
     function numat(text, i)
-        local char = string.sub(text,i-1,i-1)
+        local char = string.sub(text,i+1,i+1)
         local num = string.byte(char)
         return num
     end
+
+    uart.on("data", 7, function(data) if connection ~= nil then connection:send(getvoltage(data)) end end, 0)
+
 
 
 
