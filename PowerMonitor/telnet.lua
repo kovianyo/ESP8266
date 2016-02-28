@@ -3,25 +3,6 @@ wifi.sta.config("KoviNet", "")
 wifi.sta.connect()
 --print(wifi.sta.getip())
 
---[[
-    s=net.createServer(net.TCP,180)
-    s:listen(2323,function(c)
-       function s_output(str)
-          if(c~=nil)
-             then c:send(str)
-          end
-       end
-       node.output(s_output, 0)   -- re-direct output to function s_ouput.
-       c:on("receive",function(c,l)
-          node.input(l)           -- works like pcall(loadstring(l)) but support multiple separate line
-       end)
-       c:on("disconnection",function(c)
-          node.output(nil)        -- un-regist the redirect output function, output goes to serial
-       end)
-       print("Welcome to NodeMcu world.")
-    end)
---]]
-
     adress = string.char(0xC0) .. string.char(0xA8) .. string.char(0x01) .. string.char(0x01)
 
 
@@ -81,7 +62,7 @@ wifi.sta.connect()
       if state then gpio.write(2, gpio.HIGH)
       else gpio.write(2, gpio.LOW) end
       state = not state
-      tmr.alarm(0, 1000, 0, blink)
+      tmr.alarm(0, 500, 0, blink)
     end
 
     blink()
@@ -113,9 +94,24 @@ wifi.sta.connect()
      end)
     end)
 
+    function sendFile(connection, fileName)
+      file.open(fileName, "r")
+      repeat
+        local line = file.readline()
+        if line ~= nil then connection:send(line) end
+      until (line == nil)
+      file.close()
+    end
+
+
     requested = nil
 
     function process(text)
+        if startsWith(text, "GET / ")
+        then
+          sendFile(connection, "index.html")
+        end
+
         if startsWith(text, "GET /voltage")
         then
           requested = 1
