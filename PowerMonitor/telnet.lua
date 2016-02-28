@@ -3,6 +3,7 @@ wifi.sta.config("KoviNet", "")
 wifi.sta.connect()
 --print(wifi.sta.getip())
 
+--[[
     s=net.createServer(net.TCP,180)
     s:listen(2323,function(c)
        function s_output(str)
@@ -19,6 +20,7 @@ wifi.sta.connect()
        end)
        print("Welcome to NodeMcu world.")
     end)
+--]]
 
     adress = string.char(0xC0) .. string.char(0xA8) .. string.char(0x01) .. string.char(0x01)
 
@@ -86,6 +88,55 @@ wifi.sta.connect()
 
     ----------------------------------------------------------------------
 
+    connection = nil
+
+    srv=net.createServer(net.TCP)
+    srv:listen(80, function(conn)
+     conn:on("receive", function(conn,payload)
+      --print(getFirstLine(payload))
+      --print(payload)
+      connection = conn
+      process(payload)
+      --conn:send("abc")
+      --tmr.stop(LEDTIMER)
+      --processPost(payload)
+      --if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
+      --then
+      --  sendFile(conn, "index.html")
+      --else
+      --  conn:send("HTTP/1.1 404 file not found")
+      --end
+     end)
+     conn:on("sent", function(conn)
+      connection = nil
+      conn:close()
+     end)
+    end)
+
+
+    function process(text)
+        if startsWith(text, "GET /voltage")
+        then uart.write(0, getcommand(0xB0)) end
+    end
+
+
+    function startsWith(String,Start)
+       return string.sub(String,1,string.len(Start))==Start
+    end
+
+    uart.on("data", 7, function(data) if connection ~= nil then connection:send(getnum(data)) end end, 0)
+
+    function getvoltage(data)
+      return (numat(data, 1) * 256 + numat(data, 2)) * 10 + numat(data, 3)
+    end
+
+    function numat(text, i)
+        local char = string.sub(text,i-1,i-1)
+        local num = string.byte(char)
+        return num
+    end
+
+
 
 -- setup adress
---uart.write(0, getcommand(0xB4))
+uart.write(0, getcommand(0xB4))
