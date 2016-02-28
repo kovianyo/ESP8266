@@ -103,13 +103,21 @@ wifi.sta.connect()
       file.close()
     end
 
+-- PZEM-004 connected
+    status = false
 
+-- what is requested (voltage, current, power, energy)
     requested = nil
 
     function process(text)
         if startsWith(text, "GET / ")
         then
           sendFile(connection, "index.html")
+        end
+
+        if startsWith(text, "GET /status")
+        then
+          if status then connection:send("connected") else connection:send("connecting...") end
         end
 
         if startsWith(text, "GET /voltage")
@@ -172,9 +180,13 @@ wifi.sta.connect()
     end
 
 
-    uart.on("data", 7, function(data) if connection ~= nil then processdata(data) end end, 0)
+    function processuart(data)
+      if not status and data == string.char(0xA4) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0xA4) then
+        status = true
+      elseif connection ~= nil then processdata(data) end
+    end
 
-
+    uart.on("data", 7, processuart, 0)
 
 
 -- setup adress
