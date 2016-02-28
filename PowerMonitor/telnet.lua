@@ -78,21 +78,31 @@ wifi.sta.connect()
       --print(payload)
       connection = conn
       process(payload)
-      --conn:send("abc")
-      --tmr.stop(LEDTIMER)
-      --processPost(payload)
-      --if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
-      --then
-      --  sendFile(conn, "index.html")
-      --else
-      --  conn:send("HTTP/1.1 404 file not found")
-      --end
      end)
      conn:on("sent", function(conn)
       connection = nil
       conn:close()
      end)
     end)
+
+--[[
+    s=net.createServer(net.TCP,180)
+    s:listen(2323,function(c)
+       function s_output(str)
+          if(c~=nil)
+             then c:send(str)
+          end
+       end
+       node.output(s_output, 0)   -- re-direct output to function s_ouput.
+       c:on("receive",function(c,l)
+          node.input(l)           -- works like pcall(loadstring(l)) but support multiple separate line
+       end)
+       c:on("disconnection",function(c)
+          node.output(nil)        -- un-regist the redirect output function, output goes to serial
+       end)
+       print("Welcome to NodeMcu world.")
+    end)
+--]]
 
     function sendFile(connection, fileName)
       file.open(fileName, "r")
@@ -117,7 +127,7 @@ wifi.sta.connect()
 
         if startsWith(text, "GET /status")
         then
-          if status then connection:send("connected") else connection:send("connecting...") end
+          if status then connection:send("connected") else connection:send("not connected") end
         end
 
         if startsWith(text, "GET /voltage")
