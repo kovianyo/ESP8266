@@ -1,5 +1,10 @@
-print("Setting wifi mode to AccessPoint...")
-wifi.setmode(wifi.SOFTAP)
+--print("Setting wifi mode to AccessPoint...")
+--wifi.setmode(wifi.SOFTAP)
+
+wifi.setmode(wifi.STATION)
+wifi.sta.config("KoviNet", "")
+wifi.sta.connect()
+
 
 html1 =
 [[
@@ -18,8 +23,8 @@ html1 =
 html2 =
 [[
     <form method="post">
-        <input type="submit" name="command" value="On">
-        <input type="submit" name="command" value="Off">
+        <input type="submit" name="command" value="on" onclick="document.forms[0].action = 'on';">
+        <input type="submit" name="command" value="off" onclick="document.forms[0].action = 'off';">
     </form>
   </body>
 </html>]]
@@ -42,12 +47,13 @@ end
 
 function getCommand(payload)
   --print("d1")
+  --print(payload)
   local start, stop = string.find(payload,"\n\r")
   --print(start)
   local postData = string.sub(payload, start + 3)
-  --print(postData)
+  print(postData)
   start, stop = string.find(postData,"command=")
-  --print(stop)
+  print(stop)
   local command = string.sub(postData, stop + 1)
   --print(command)
   return command
@@ -56,11 +62,12 @@ end
 function processPost(payload)
   if string.sub(payload, 0, 4) ~= "POST" then return end
   local fileName = getFileName(payload)
-  --print("filename")
-  --print(fileName)
-  if fileName ~= "/" then return end
-  local command = getCommand(payload)
-  print("Command:", command)
+  print("filename")
+  print(fileName)
+  --if fileName ~= "/" then return end
+  local command = string.sub(fileName, 2)
+  print("Command:")
+  print(command)
   processCommand(command)
 end
 
@@ -78,8 +85,10 @@ print("Initilaizing webserver...")
 srv=net.createServer(net.TCP)
 srv:listen(80, function(conn)
  conn:on("receive", function(conn,payload)
-  print(getFirstLine(payload))
-  --print(payload)
+  --print(getFirstLine(payload))
+  print("payload:")
+  print(payload)
+  print("payload end")
   processPost(payload)
   if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
   then

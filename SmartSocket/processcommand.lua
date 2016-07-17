@@ -6,8 +6,8 @@ gpio.write(SWITCHPIN, gpio.LOW)
 
 function processCommand(command)
 
-  if command == "On" then state = true
-  elseif command == "Off" then state = false
+  if command == "on" then state = true
+  elseif command == "off" then state = false
   else state = false end
 
   setLevel(state)
@@ -16,7 +16,7 @@ end
 function setLevel(state)
   local level = gpio.LOW
 
-  if state then level = gpio.HIGH
+  if not state then level = gpio.HIGH
   else level = gpio.LOW
   end
 
