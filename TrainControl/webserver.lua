@@ -10,6 +10,13 @@ html1 =
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:;base64,=">
     <title>TrainControl</title>
+    <script type="text/javascript">
+    function send(url) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("post", url, true);
+        xmlhttp.send();
+    }
+    </script>
   </head>
   <body>
     <h1>TrainControl</h1>
@@ -17,9 +24,11 @@ html1 =
 
 html2 =
 [[
-    <form method="post">
+    <form>
        speed (+/- 1023): <input type="text" name="speed" id="speed" value="0" size="5">
-        <input type="submit" name="command" value="set" onclick="document.forms[0].action = document.getElementById('speed').value;">
+        <input type="button" value="set" onclick="send(document.getElementById('speed').value);">
+        <br />
+        <input type="button" value="stop" onclick="send(0);">
     </form>
   </body>
 </html>]]
@@ -32,7 +41,7 @@ function split(text, pattern)
     index = index + 1
   end
   return array
-end 
+end
 
 function getFirstLine(text)
   local start, stop = string.find(text, "\n")
@@ -65,7 +74,7 @@ function getCommand(payload)
 end
 
 function processPost(payload)
-  if string.sub(payload, 0, 4) ~= "POST" then return end
+  if string.sub(payload, 0, 4) ~= "POST" then return false end
   local fileName = getFileName(payload)
   print("filename")
   print(fileName)
@@ -76,10 +85,11 @@ function processPost(payload)
   local speed = tonumber(command)
   setSpeed(speed)
   --processCommand(command)
+  return true
 end
 
 function setSpeed(speed)
-  if speed==0 then 
+  if speed==0 then
     pwm.setduty(1, 0)
     pwm.setduty(2, 0)
   elseif speed > 0 then
@@ -109,16 +119,9 @@ srv:listen(80, function(conn)
   --print("payload:")
   --print(payload)
   --print("payload end")
-  processPost(payload)
-  if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
-  then
+  if not processPost(payload) then
     conn:send(html1)
-    if state then conn:send("State: on")
-    else conn:send("State: off")
-    end
     conn:send(html2)
-  else
-    conn:send("HTTP/1.1 404 file not found")
   end
  end)
  conn:on("sent", function(conn)
