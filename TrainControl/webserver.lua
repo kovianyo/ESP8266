@@ -1,5 +1,9 @@
+cfg = {}
+cfg.ssid = "TrainControl"
+cfg.pwd = "TrainRulez"
+wifi.ap.config(cfg)
+
 wifi.setmode(wifi.SOFTAP)
---wifi.sta.config("KoviNet", "")
 
 html1 =
 [[
@@ -59,20 +63,6 @@ function getFileName(payload)
   return fileName
 end
 
-function getCommand(payload)
-  --print("d1")
-  --print(payload)
-  local start, stop = string.find(payload,"\n\r")
-  --print(start)
-  local postData = string.sub(payload, start + 3)
-  print(postData)
-  start, stop = string.find(postData,"command=")
-  print(stop)
-  local command = string.sub(postData, stop + 1)
-  --print(command)
-  return command
-end
-
 function processPost(payload)
   if string.sub(payload, 0, 4) ~= "POST" then return false end
   local fileName = getFileName(payload)
@@ -84,7 +74,6 @@ function processPost(payload)
   print(command)
   local speed = tonumber(command)
   setSpeed(speed)
-  --processCommand(command)
   return true
 end
 
@@ -101,21 +90,11 @@ function setSpeed(speed)
   end
 end
 
-function sendFile(connection, fileName)
-  file.open(fileName, "r")
-  repeat
-    local line = file.readline()
-    if line ~= nil then connection:send(line) end
-  until (line == nil)
-  file.close()
-end
-
 print("Initilaizing webserver...")
 
 srv=net.createServer(net.TCP)
 srv:listen(80, function(conn)
  conn:on("receive", function(conn,payload)
-  ----print(getFirstLine(payload))
   --print("payload:")
   --print(payload)
   --print("payload end")
@@ -132,8 +111,10 @@ end)
 print("Listening...")
 print("")
 
-pwm.setup(1, 500, 0)
-pwm.setup(2, 500, 0)
+frequency = 1000
+
+pwm.setup(1, frequency, 0)
+pwm.setup(2, frequency, 0)
 
 pwm.start(1)
 pwm.start(2)
