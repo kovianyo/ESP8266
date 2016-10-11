@@ -1,7 +1,15 @@
+--[[
 wifi.setmode(wifi.STATION)
 wifi.sta.config("KoviNet","")
 wifi.sta.connect();
+--]]
 
+cfg = {}
+cfg.ssid = "TrainControl"
+cfg.pwd = "TrainRulez"
+wifi.ap.config(cfg)
+
+wifi.setmode(wifi.SOFTAP)
 
 frequency = 1000
 
@@ -28,6 +36,7 @@ function setSpeed(speed)
 end
 
 function setSpeedString(speedStr)
+  print(speedStr)
   local speed = tonumber(speedStr)
   setSpeed(speed)
 end
