@@ -1,9 +1,18 @@
+
 cfg = {}
 cfg.ssid = "TrainControl"
 cfg.pwd = "TrainRulez"
 wifi.ap.config(cfg)
 
 wifi.setmode(wifi.SOFTAP)
+
+--[[
+wifi.setmode(wifi.STATION)
+wifi.sta.config("KoviNet","")
+wifi.sta.connect();
+--]]
+
+-- D1, D2
 
 frequency = 1000
 
@@ -48,6 +57,8 @@ html2 =
   </body>
 </html>]]
 
+response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
+
 function split(text, pattern)
   array = {}
   local index = 0
@@ -84,11 +95,17 @@ function processPost(payload)
   print("Command:")
   print(command)
   local speed = tonumber(command)
-  setSpeed(speed)
+  if not (speed == nil) then setSpeed(speed) end
   return true
 end
 
 function setSpeed(speed)
+  if speed > 1023 then
+    speed = 1023
+  elseif speed < -1023 then
+    speed = -1023
+  end
+
   if speed==0 then
     pwm.setduty(1, 0)
     pwm.setduty(2, 0)
@@ -103,6 +120,7 @@ end
 
 print("Initilaizing webserver...")
 
+if not (srv == nil) then srv:close() end
 srv=net.createServer(net.TCP)
 srv:listen(80, function(conn)
  conn:on("receive", function(conn,payload)
@@ -112,6 +130,8 @@ srv:listen(80, function(conn)
   if not processPost(payload) then
     conn:send(html1)
     conn:send(html2)
+  else
+    conn:send(response)
   end
  end)
  conn:on("sent", function(conn)
