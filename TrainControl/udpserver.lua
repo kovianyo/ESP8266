@@ -23,6 +23,12 @@ irpin1 = 5
 irstop1 = false
 
 function setSpeed(speed)
+  if speed > 1023 then
+    speed = 1023
+  elseif speed < -1023 then
+    speed = -1023
+  end
+
   if speed==0 then
     pwm.setduty(1, 0)
     pwm.setduty(2, 0)
@@ -38,7 +44,7 @@ end
 function setSpeedString(speedStr)
   print(speedStr)
   local speed = tonumber(speedStr)
-  setSpeed(speed)
+  if not (speed == nil) then setSpeed(speed) end
 end
 
 if not (s == nil) then s:close() end
