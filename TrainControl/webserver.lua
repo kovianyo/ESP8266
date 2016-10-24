@@ -12,7 +12,8 @@ wifi.sta.config("KoviNet","")
 wifi.sta.connect();
 --]]
 
--- D1, D2
+-- outputs: D1, D2
+-- inputs: D5, D6
 
 frequency = 1000
 
@@ -24,6 +25,8 @@ pwm.start(2)
 
 irpin1 = 5
 irstop1 = false
+irpin2 = 6
+irstop2 = false
 
 html1 =
 [[
@@ -86,6 +89,8 @@ function getFileName(payload)
 end
 
 function processPost(payload)
+  -- collectgarbage()
+  -- print(node.heap())
   if string.sub(payload, 0, 4) ~= "POST" then return false end
   local fileName = getFileName(payload)
   print("filename")
@@ -109,10 +114,10 @@ function setSpeed(speed)
   if speed==0 then
     pwm.setduty(1, 0)
     pwm.setduty(2, 0)
-  elseif speed > 0 and not irstop1 then
+  elseif speed > 0 and (not irstop1) then
     pwm.setduty(2, 0)
     pwm.setduty(1, speed)
-  elseif speed < 0 then
+  elseif speed < 0 and (not irstop2) then
     pwm.setduty(1, 0)
     pwm.setduty(2, speed * -1)
   end
@@ -141,14 +146,28 @@ end)
 
 print("Listening...")
 print("")
---[[
+
 function updateIr1()
     irstop1 = gpio.read(irpin1) == 0
-    if irstop1 then setSpeed(0) end
+    if irstop1 then
+      print("irstop1 was true")
+      setSpeed(0)
+    end
+end
+
+function updateIr2()
+    irstop2 = gpio.read(irpin2) == 0
+    if irstop2 then
+      print("irstop2 was true")
+      setSpeed(0)
+    end
 end
 
 gpio.mode(irpin1, gpio.INT)
 gpio.trig(irpin1, "both", updateIr1)
 
+gpio.mode(irpin2, gpio.INT)
+gpio.trig(irpin2, "both", updateIr2)
+
 updateIr1()
---]]
+updateIr2()
