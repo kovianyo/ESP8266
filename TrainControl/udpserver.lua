@@ -8,7 +8,6 @@ cfg = {}
 cfg.ssid = "TrainControl"
 cfg.pwd = "TrainRulez"
 wifi.ap.config(cfg)
-
 wifi.setmode(wifi.SOFTAP)
 
 frequency = 1000
@@ -42,7 +41,8 @@ function setSpeed(speed)
 end
 
 function setSpeedString(speedStr)
-  print(speedStr)
+  --collectgarbage()
+  --print(tmr.now(), node.heap(), speedStr)
   local speed = tonumber(speedStr)
   if not (speed == nil) then setSpeed(speed) end
 end
@@ -52,4 +52,4 @@ s=net.createServer(net.UDP)
 s:on("receive",function(s,c) setSpeedString(c) end)
 s:listen(8888)
 
--- echo "2" | nc -w1 -u 192.168.1.112 8888
+-- echo "2" | nc -w0 -u 192.168.1.112 8888
