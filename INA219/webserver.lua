@@ -24,6 +24,7 @@ srv:listen(80, function(conn)
   if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
   then
     local response = processRequest(payload)
+    print("Sending", response)
     conn:send(response)
   else
     conn:send("HTTP/1.1 404 file not found")

@@ -5,6 +5,12 @@ ina_1 = ina219:new()
 ina_1:init(ina_1_adr)
 
 function getIndex()
+  if file.open("index.html", "r") then
+    local html = file.read()
+    file.close()
+    return html
+  end
+
   return "index"
 end
 
