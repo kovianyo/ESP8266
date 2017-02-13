@@ -5,5 +5,5 @@ ina_1 = ina219:new()
 ina_1:init(ina_1_adr)
 
 print( "Voltage: ".. ina_1:read_voltage())
-print( "Current: ".. ina_1:read_current()/2)
+print( "Current: ".. ina_1:read_current())
 print( "Power: ".. ina_1:read_power())

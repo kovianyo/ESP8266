@@ -8,7 +8,7 @@ ina219 = {
     current_reg = 0x04,
     sda = 6,
     scl = 5,
-    current_num = 7.142857,
+    current_num = 7.142857 * 2,
     power_num = 0.357142
     }
 local ina219_mt = Class(ina219)
@@ -30,11 +30,11 @@ local ina219_mt = Class(ina219)
     	i2c.start(self.id)
     	i2c.address( self.id, self.address, i2c.TRANSMITTER )
     	number = i2c.write(self.id,self.calibration_reg)
-    	print("Written "..number)
+    	--print("Written "..number)
     	number = i2c.write(self.id,0x16)
-    	print("Written "..number)
+    	--print("Written "..number)
     	number = i2c.write(self.id,0xDB)
-    	print("Written "..number)
+    	--print("Written "..number)
     	i2c.stop(self.id)
     end
 
