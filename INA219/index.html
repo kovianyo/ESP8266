@@ -5,7 +5,7 @@
 <h1>Kovi voltage log</h1>
 Voltage: <span id="voltage"></span> mV<br>
 Current: <span id="current"></span> mA<br>
-
+<span id="date"></span>
 <script type="text/javascript">
 
 function update(channel) {
@@ -13,14 +13,20 @@ function update(channel) {
   xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
          document.getElementById(channel).innerHTML = xhttp.responseText;
+         document.getElementById("date").innerHTML = new Date().toString();
       }
   };
   xhttp.open("GET", channel, true);
   xhttp.send();
 }
 
-update("voltage");
-update("current");
+function updateValues() {
+  update("voltage");
+  update("current");
+  setTimeout(function(){ updateValues(); }, 3000);
+}
+
+updateValues();
 
 </script>
 </body>
