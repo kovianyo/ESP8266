@@ -8,18 +8,19 @@ Current: <span id="current"></span> mA<br>
 
 <script type="text/javascript">
 
-function update() {
+function update(channel) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-         document.getElementById("current").innerHTML = xhttp.responseText;
+         document.getElementById(channel).innerHTML = xhttp.responseText;
       }
   };
-  xhttp.open("GET", "current", true);
+  xhttp.open("GET", channel, true);
   xhttp.send();
 }
 
-update();
+update("voltage");
+update("current");
 
 </script>
 </body>
