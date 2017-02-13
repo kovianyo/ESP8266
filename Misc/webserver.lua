@@ -1,0 +1,11 @@
+wifi.setmode(wifi.SOFTAP)
+--wifi.sta.config("KoviNet", "")
+
+srv=net.createServer(net.TCP)
+srv:listen(80, function(conn)
+   conn:on("receive", function(conn,payload)
+     print(payload)
+     conn:send("<h1> Hello, NodeMCU.2</h1>")
+   end)
+   conn:on("sent", function(conn) conn:close() end)
+end)
