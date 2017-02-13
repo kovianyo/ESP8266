@@ -1,4 +1,7 @@
 print("Starting up...")
 print("")
 
---dofile("main.lua")
+dofile("utils.lua")
+dofile("actions.lua")
+dofile("processRequest.lua")
+dofile("webserver.lua")
