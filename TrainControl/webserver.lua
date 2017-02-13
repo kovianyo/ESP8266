@@ -1,16 +1,15 @@
+--[[
 
 cfg = {}
 cfg.ssid = "TrainControl"
 cfg.pwd = "TrainRulez"
 wifi.ap.config(cfg)
-
 wifi.setmode(wifi.SOFTAP)
+--]]
 
---[[
 wifi.setmode(wifi.STATION)
 wifi.sta.config("KoviNet","")
 wifi.sta.connect();
---]]
 
 -- outputs: D1, D2
 -- inputs: D5, D6
@@ -147,6 +146,8 @@ end)
 print("Listening...")
 print("")
 
+--[[
+
 function updateIr1()
     irstop1 = gpio.read(irpin1) == 0
     if irstop1 then
@@ -163,6 +164,7 @@ function updateIr2()
     end
 end
 
+
 gpio.mode(irpin1, gpio.INT)
 gpio.trig(irpin1, "both", updateIr1)
 
@@ -171,3 +173,4 @@ gpio.trig(irpin2, "both", updateIr2)
 
 updateIr1()
 updateIr2()
+--]]
