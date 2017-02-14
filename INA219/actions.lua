@@ -26,7 +26,7 @@ function getCurrent()
 end
 
 actions = {
-  { "", getIndex },
+  --{ "", getIndex },
   { "voltage", getVoltage },
   { "current", getCurrent }
 }

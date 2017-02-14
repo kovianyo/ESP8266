@@ -3,13 +3,13 @@ function processRequest(payload)
 
   local result = getResult(currentAction)
 
-  if result == nil then
-    result = getResult("")
-  end
+  --if result == nil then
+  --  result = getResult("")
+  --end
 
-  if result == nil then
-    result = "No method to proces '" .. currentAction .. "'"
-  end
+  --if result == nil then
+  --  result = "No method to proces '" .. currentAction .. "'"
+  --end
 
   return result
 end

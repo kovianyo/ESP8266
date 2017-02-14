@@ -1,19 +1,69 @@
 <html>
 <head>
+<script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/1.1.1/dygraph-combined.js"></script>
 </head>
 <body>
 <h1>Kovi voltage log</h1>
-Voltage: <span id="voltage"></span> mV<br>
 Current: <span id="current"></span> mA<br>
-<span id="date"></span>
+Voltage: <span id="voltage"></span> mV<br>
+<span id="date"></span><br>
+
+<h2>Current</h2>
+<div id="currentgraph" style="width:100%; height:300px;"></div>
+<h2>Voltage</h2>
+<div id="voltagegraph" style="width:100%; height:300px;"></div>
+
 <script type="text/javascript">
+
+ currents = [];
+ currents.push([new Date(), 0]);
+
+ var currentGraph = new Dygraph(document.getElementById("currentgraph"), currents,
+ {
+   rollPeriod: 1,
+   showRoller: true,
+   labels: ['Time', 'mA']
+ });
+
+ voltages = [];
+ voltages.push([new Date(), 0]);
+
+ var voltageGraph = new Dygraph(document.getElementById("voltagegraph"), currents,
+ {
+   rollPeriod: 1,
+   showRoller: true,
+   labels: ['Time', 'mV']
+ });
 
 function update(channel) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
+      if (this.readyState == 4) {
+        if (this.status == 200) {
          document.getElementById(channel).innerHTML = xhttp.responseText;
          document.getElementById("date").innerHTML = new Date().toString();
+
+         if (channel == "current") {
+           currents.push([new Date(), xhttp.responseText]);
+           currentGraph.updateOptions( { 'file': currents } );
+           //setTimeout(function(){ update("current"); }, 3000);
+         }
+
+         if (channel == "voltage") {
+           voltages.push([new Date(), xhttp.responseText]);
+           voltageGraph.updateOptions( { 'file': voltages } );
+           //setTimeout(function(){ update("voltage"); }, 3000);
+         }
+       }
+
+       if (channel == "current") {
+         setTimeout(function(){ update("voltage"); }, 3000);
+       }
+
+       if (channel == "voltage") {
+         setTimeout(function(){ update("current"); }, 3000);
+       }
+
       }
   };
   xhttp.open("GET", channel, true);
@@ -22,8 +72,8 @@ function update(channel) {
 
 function updateValues() {
   update("voltage");
-  update("current");
-  setTimeout(function(){ updateValues(); }, 3000);
+  //update("current");
+  //setTimeout(function(){ updateValues(); }, 3000);
 }
 
 updateValues();
