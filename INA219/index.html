@@ -44,15 +44,17 @@ function update(channel) {
          document.getElementById("date").innerHTML = new Date().toString();
 
          if (channel == "current") {
-           currents.push([new Date(), xhttp.responseText]);
+           var data = [new Date(), xhttp.responseText];
+           if (currents.length == 1 && currents[0][1] == 0 ) { currents[0] = data; }
+           else { currents.push(data); }
            currentGraph.updateOptions( { 'file': currents } );
-           //setTimeout(function(){ update("current"); }, 3000);
          }
 
          if (channel == "voltage") {
-           voltages.push([new Date(), xhttp.responseText]);
+           var data = [new Date(), xhttp.responseText];
+           if (voltages.length == 1 && voltages[0][1] == 0) { voltages[0] = data; }
+           else { voltages.push(data); }
            voltageGraph.updateOptions( { 'file': voltages } );
-           //setTimeout(function(){ update("voltage"); }, 3000);
          }
        }
 
