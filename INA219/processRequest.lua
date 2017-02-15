@@ -22,7 +22,8 @@ end
 function getAction(payload)
   local firstLine = getFirstLine(payload)
 
-   print("Processing", firstLine)
+   log("")
+   log("Processing", firstLine)
 
   local parts = split(firstLine, "%S+")
 
