@@ -4,16 +4,6 @@ ina_1_adr = 0x40
 ina_1 = ina219:new()
 ina_1:init(ina_1_adr)
 
-function getIndex()
-  if file.open("index.html", "r") then
-    local html = file.read()
-    file.close()
-    return html
-  end
-
-  return "index"
-end
-
 function getVoltage()
   local voltage = ina_1:read_voltage()
   return voltage
@@ -26,7 +16,6 @@ function getCurrent()
 end
 
 actions = {
-  --{ "", getIndex },
   { "voltage", getVoltage },
   { "current", getCurrent }
 }
