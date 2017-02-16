@@ -6,7 +6,7 @@
 <h1>Kovi voltage log</h1>
 Current: <span id="current"></span> mA<br>
 Voltage: <span id="voltage"></span> mV<br>
-<span id="date"></span><br>
+Last update: <span id="date"></span><br>
 <input type="checkbox" id="updatedata" onclick="updateData(this.checked);" checked=""> update data<br>
 <input type="checkbox" id="updategraphs" onclick="updateGraphs(this.checked);" checked=""> update graphs<br>
 
@@ -14,6 +14,11 @@ Voltage: <span id="voltage"></span> mV<br>
 <div id="currentgraph" style="width:100%; height:300px;"></div>
 <h2>Voltage</h2>
 <div id="voltagegraph" style="width:100%; height:300px;"></div>
+
+<br>
+<input tpye="button" value="Export currents" onclick="exportCurrents();"> &nbsp;
+<input tpye="button" value="Export voltages" onclick="exportVoltages();"> <br><br>
+<textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>
 
 <script src="http://kovianyo.ddns.net/current/updategraph.js"></script>
 </body>

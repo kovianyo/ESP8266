@@ -85,4 +85,27 @@ function updateGraphs(update){
  }
 }
 
+function getTime(date) {
+  var text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); // + ":" + date.getMilliseconds());
+  return text;
+}
+
+function exportCurrents() {
+  text = "time, mA\n"
+  for (var i = 0; i < currents.length; i++) {
+      text += getTime(currents[i][0]) + ", " + currents[i][1] + "\n";
+  }
+
+  document.getElementById("export").value = text;
+}
+
+function exportVoltages() {
+  text = "time, V\n"
+  for (var i = 0; i < voltages.length; i++) {
+      text += getTime(voltages[i][0]) + ", " + voltages[i][1] + "\n";
+  }
+
+  document.getElementById("export").value = text;
+}
+
 updateValues();
