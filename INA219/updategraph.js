@@ -30,14 +30,14 @@ function update(channel) {
           var data = [new Date(), xhttp.responseText];
           if (currents.length == 1 && currents[0][1] == 0 ) { currents[0] = data; }
           else { currents.push(data); }
-          currentGraph.updateOptions( { 'file': currents } );
+          updateCurrentGraph();
         }
 
         if (channel == "voltage") {
           var data = [new Date(), xhttp.responseText];
           if (voltages.length == 1 && voltages[0][1] == 0) { voltages[0] = data; }
           else { voltages.push(data); }
-          voltageGraph.updateOptions( { 'file': voltages } );
+          updateVoltageGraph();
         }
       }
 
@@ -63,6 +63,25 @@ function updateValues() {
 function updateData(start){
  if (start) {
     updateValues();
+ }
+}
+
+function updateCurrentGraph() {
+  if (document.getElementById("updategraphs").checked) {
+    currentGraph.updateOptions( { 'file': currents } );
+  }
+}
+
+function updateVoltageGraph() {
+  if (document.getElementById("updategraphs").checked) {
+    voltageGraph.updateOptions( { 'file': voltages } );
+  }
+}
+
+function updateGraphs(update){
+ if (update) {
+     updateCurrentGraph();
+     updateVoltageGraph();
  }
 }
 
