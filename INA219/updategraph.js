@@ -4,19 +4,32 @@ $(function() {
   var html = '\
 <fieldset>\
   <legend>Basic</legend>\
-    <div style="float: left; padding-right: 24px;">\
-      Current: <span id="current" style="font-weight: bold;"></span> mA<br>\
-      Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
-    </div>\
-    <div style="float: left; padding-right: 24px;">\
-      <input type="checkbox" id="updatedata" checked=""> update data <br>\
-      <input type="checkbox" id="updategraphs" checked=""> update graphs\
-    </div>\
-    <div style="float: left;">\
-      Last update: <span id="date"></span><br>\
-    </div>\
+    <table>\
+      <col width="120">\
+      <col width="140">\
+      <tr>\
+        <td>\
+          Current: <span id="current" style="font-weight: bold;"></span> mA\
+        </td>\
+        <td>\
+          <input type="checkbox" id="updatedata" checked=""> update data\
+        </td>\
+      </tr>\
+      <tr>\
+        <td>\
+          Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
+        </td>\
+        <td>\
+          <input type="checkbox" id="updategraphs" checked=""> update graphs\
+        </td>\
+        <td>\
+          Last update: <span id="date"></span><br>\
+        </td>\
+      </tr>\
+    </table>\
 </fieldset>\
 \
+<br>\
 <fieldset>\
   <legend>Graphs</legend>\
   <h2>Current</h2>\
