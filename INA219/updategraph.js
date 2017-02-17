@@ -4,8 +4,8 @@ $(function() {
   var html = 'Current: <span id="current"></span> mA<br>\
 Voltage: <span id="voltage"></span> mV<br>\
 Last update: <span id="date"></span><br>\
-<input type="checkbox" id="updatedata" onclick="updateData(this.checked);" checked=""> update data<br>\
-<input type="checkbox" id="updategraphs" onclick="updateGraphs(this.checked);" checked=""> update graphs<br>\
+<input type="checkbox" id="updatedata" checked=""> update data<br>\
+<input type="checkbox" id="updategraphs" checked=""> update graphs<br>\
 \
 <h2>Current</h2>\
 <div id="currentgraph" style="width:100%; height:300px;"></div>\
@@ -13,12 +13,28 @@ Last update: <span id="date"></span><br>\
 <div id="voltagegraph" style="width:100%; height:300px;"></div>\
 \
 <br>\
-<input tpye="button" value="Export currents" onclick="exportCurrents();"> &nbsp;\
-<input tpye="button" value="Export voltages" onclick="exportVoltages();"> <br><br>\
+<input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
+<input tpye="button" id="exportVoltages" value="Export voltages"> <br><br>\
 <textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>\
 ';
 
   $(document.body).append(html);
+
+  $("#updatedata").click(function(){
+    updateData(this.checked);
+  });
+
+  $("#updategraphs").click(function(){
+    updateGraphs(this.checked);
+  });
+
+  $("#exportCurrents").click(function(){
+    exportCurrents();
+  });
+
+  $("#exportVoltages").click(function(){
+    exportVoltages();
+  });
 
   currents = [];
   currents.push([new Date(), 0]);
