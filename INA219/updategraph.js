@@ -41,9 +41,13 @@ $(function() {
 \
 <fieldset  style="margin-bottom: 12px;">\
   <legend>Export</legend>\
-  <input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
-  <input tpye="button" id="exportVoltages" value="Export voltages"> <br><br>\
-  <textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>\
+  <div style="margin-bottom: 10px;">\
+    <input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
+    <input tpye="button" id="exportVoltages" value="Export voltages">\
+  </div>\
+  <div>\
+    <textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>\
+  </div>\
 </fieldset>\
 ';
 
