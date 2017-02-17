@@ -2,35 +2,36 @@ $(function() {
   $(document.body).append("<h1>Kovi voltage log</h1>");
 
   var html = '\
-<fieldset>\
-  <legend>Basic</legend>\
-    <table>\
-      <col width="120">\
-      <col width="140">\
-      <tr>\
-        <td>\
-          Current: <span id="current" style="font-weight: bold;"></span> mA\
-        </td>\
-        <td>\
-          <input type="checkbox" id="updatedata" checked=""> update data\
-        </td>\
-      </tr>\
-      <tr>\
-        <td>\
-          Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
-        </td>\
-        <td>\
-          <input type="checkbox" id="updategraphs" checked=""> update graphs\
-        </td>\
-        <td>\
-          Last update: <span id="date"></span><br>\
-        </td>\
-      </tr>\
-    </table>\
-</fieldset>\
+<div>\
+  <fieldset style="margin-bottom: 12px;">\
+    <legend>Basic</legend>\
+      <table>\
+        <col width="120">\
+        <col width="140">\
+        <tr>\
+          <td>\
+            Current: <span id="current" style="font-weight: bold;"></span> mA\
+          </td>\
+          <td>\
+            <input type="checkbox" id="updatedata" checked=""> update data\
+          </td>\
+        </tr>\
+        <tr>\
+          <td>\
+            Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
+          </td>\
+          <td>\
+            <input type="checkbox" id="updategraphs" checked=""> update graphs\
+          </td>\
+          <td>\
+            Last update: <span id="date"></span><br>\
+          </td>\
+        </tr>\
+      </table>\
+  </fieldset>\
+</div>\
 \
-<br>\
-<fieldset>\
+<fieldset style="margin-bottom: 12px;">\
   <legend>Graphs</legend>\
   <h2>Current</h2>\
   <div id="currentgraph" style="width:100%; height:300px;"></div>\
@@ -38,8 +39,7 @@ $(function() {
   <div id="voltagegraph" style="width:100%; height:300px;"></div>\
 </fieldset>\
 \
-<br>\
-<fieldset>\
+<fieldset  style="margin-bottom: 12px;">\
   <legend>Export</legend>\
   <input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
   <input tpye="button" id="exportVoltages" value="Export voltages"> <br><br>\
