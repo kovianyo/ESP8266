@@ -10,7 +10,7 @@ $(function() {
         <col width="140">\
         <tr>\
           <td>\
-            Current: <span id="current" style="font-weight: bold;"></span> mA\
+            Current: <span id="current" style="font-weight: bold;">-</span> mA\
           </td>\
           <td>\
             <input type="checkbox" id="updatedata" checked=""> update data\
@@ -18,7 +18,7 @@ $(function() {
         </tr>\
         <tr>\
           <td>\
-            Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
+            Voltage: <span id="voltage" style="font-weight: bold;">-</span> mV\
           </td>\
           <td>\
             <input type="checkbox" id="updategraphs" checked=""> update graphs\
@@ -91,7 +91,7 @@ $(function() {
        if (this.readyState == 4) {
          if (this.status == 200) {
           document.getElementById(channel).innerHTML = xhttp.responseText;
-          document.getElementById("date").innerHTML = new Date().toString();
+          document.getElementById("date").innerHTML = getTime(new Date());
 
           if (channel == "current") {
             var data = [new Date(), xhttp.responseText];
