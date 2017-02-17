@@ -1,21 +1,37 @@
 $(function() {
   $(document.body).append("<h1>Kovi voltage log</h1>");
 
-  var html = 'Current: <span id="current"></span> mA<br>\
-Voltage: <span id="voltage"></span> mV<br>\
-Last update: <span id="date"></span><br>\
-<input type="checkbox" id="updatedata" checked=""> update data<br>\
-<input type="checkbox" id="updategraphs" checked=""> update graphs<br>\
+  var html = '\
+<fieldset>\
+  <legend>Basic</legend>\
+    <div style="float: left; padding-right: 24px;">\
+      Current: <span id="current" style="font-weight: bold;"></span> mA<br>\
+      Voltage: <span id="voltage" style="font-weight: bold;"></span> mV\
+    </div>\
+    <div style="float: left; padding-right: 24px;">\
+      <input type="checkbox" id="updatedata" checked=""> update data <br>\
+      <input type="checkbox" id="updategraphs" checked=""> update graphs\
+    </div>\
+    <div style="float: left;">\
+      Last update: <span id="date"></span><br>\
+    </div>\
+</fieldset>\
 \
-<h2>Current</h2>\
-<div id="currentgraph" style="width:100%; height:300px;"></div>\
-<h2>Voltage</h2>\
-<div id="voltagegraph" style="width:100%; height:300px;"></div>\
+<fieldset>\
+  <legend>Graphs</legend>\
+  <h2>Current</h2>\
+  <div id="currentgraph" style="width:100%; height:300px;"></div>\
+  <h2>Voltage</h2>\
+  <div id="voltagegraph" style="width:100%; height:300px;"></div>\
+</fieldset>\
 \
 <br>\
-<input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
-<input tpye="button" id="exportVoltages" value="Export voltages"> <br><br>\
-<textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>\
+<fieldset>\
+  <legend>Export</legend>\
+  <input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
+  <input tpye="button" id="exportVoltages" value="Export voltages"> <br><br>\
+  <textarea id="export" style="margin: 0px; width: 459px; height: 142px;"></textarea>\
+</fieldset>\
 ';
 
   $(document.body).append(html);
