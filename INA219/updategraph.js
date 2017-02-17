@@ -152,8 +152,13 @@ $(function() {
    }
   }
 
-  function getTime(date) {
-    var text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); // + ":" + date.getMilliseconds());
+  function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+    function getTime(date) {
+    var text = pad(date.getHours(), 2) + ":" + pad(date.getMinutes(), 2) + ":" + pad(date.getSeconds(), 2); // + ":" + date.getMilliseconds());
     return text;
   }
 
