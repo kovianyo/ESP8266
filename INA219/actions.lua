@@ -9,7 +9,7 @@ function getVoltage()
   local time = tmr.now()
 
   local voltage = ina_1:read_voltage() / 1000
-  voltage = round(voltage, 1)
+  voltage = round(voltage, 2)
 
   log("Elapsed us: ", tmr.now() - time)
 
