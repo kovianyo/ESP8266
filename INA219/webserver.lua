@@ -22,15 +22,12 @@ end
 
 print("Initilaizing webserver...")
 
-srv=net.createServer(net.TCP)
-srv:listen(80, function(conn)
- conn:on("receive", function(conn, payload)
-  --print("payload:")
-  --print(payload)
-  --print("payload end")
-  --pl = payload
-  --print(getFirstLine(payload))
-  --local firstLine = getFirstLine(payload)
+function onsent(conn)
+  conn:close()
+  print("sent.")
+end
+
+function onreceive(conn, payload)
   if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
   then
     local response = processRequest(payload)
@@ -40,17 +37,21 @@ srv:listen(80, function(conn)
     else
       print("Sending", response)
       conn:send(response)
+      print("after send")
     end
-
   else
     conn:send("HTTP/1.1 404 file not found")
   end
- end)
- conn:on("sent", function(conn)
-  --print("sent.")
-  conn:close()
- end)
-end)
+
+ conn:on("sent", onsent)
+end
+
+function listener(conn)
+ conn:on("receive", onreceive)
+end
+
+srv=net.createServer(net.TCP)
+srv:listen(80, listener)
 
 print("Listening...")
 print("")
