@@ -1,5 +1,4 @@
-require'Class'
-ina219 = {
+local ina219 = {
     id = 0,
     address = 0x41,
     calibration_reg = 0x05,
@@ -10,89 +9,71 @@ ina219 = {
     scl = 5,
     current_num = 7.142857 * 2,
     power_num = 0.357142
-    }
-local ina219_mt = Class(ina219)
+  }
 
-    function ina219:showdata()
-        voltage = ina219:read_voltage()
-        current = ina219:read_current()
-        power = ina219:read_power()
+function ina219:init(adr)
+	ina219.address = adr
+  i2c.setup(self.id, self.sda, self.scl, i2c.SLOW)
+	i2c.start(self.id)
+	i2c.address( self.id, self.address, i2c.TRANSMITTER )
+	local number = i2c.write(self.id,self.calibration_reg)
+	--print("Written "..number)
+	number = i2c.write(self.id,0x16)
+	--print("Written "..number)
+	number = i2c.write(self.id,0xDB)
+	--print("Written "..number)
+	i2c.stop(self.id)
+end
 
-        print("================")
-        print( "Voltage: "..voltage)
-        print( "Current: "..current)
-        print( "Power: "..power)
-    end
+function ina219:read(reg)
+  i2c.start(self.id)
+  i2c.address(self.id, self.address, i2c.TRANSMITTER)
+  i2c.write(self.id, reg)
+  i2c.stop(self.id)
 
-    function ina219:init(adr)
-    	ina219.address = adr
-        i2c.setup(self.id, self.sda, self.scl, i2c.SLOW)
-    	i2c.start(self.id)
-    	i2c.address( self.id, self.address, i2c.TRANSMITTER )
-    	number = i2c.write(self.id,self.calibration_reg)
-    	--print("Written "..number)
-    	number = i2c.write(self.id,0x16)
-    	--print("Written "..number)
-    	number = i2c.write(self.id,0xDB)
-    	--print("Written "..number)
-    	i2c.stop(self.id)
-    end
+  i2c.start(self.id)
+  i2c.address(self.id, self.address, i2c.RECEIVER)
+  local number = i2c.read(self.id, 2) -- read 16bit val
+  i2c.stop(self.id)
 
-    function ina219:read_voltage()
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.TRANSMITTER)
-        i2c.write(self.id,self.voltage_reg)
-        i2c.stop(self.id)
+  return number
+end
 
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.RECEIVER)
-        number=i2c.read(self.id, 2) -- read 16bit val
-        i2c.stop(self.id)
+function ina219:read_voltage()
+    local number = self:read(self.voltage_reg)
 
-        h,l = string.byte(number,1,2)
-        result = h*256 + l
-        result = bit.rshift(result, 3) * 4
-        --print(result)
+    local h,l = string.byte(number,1,2)
+    local result = h*256 + l
+    result = bit.rshift(result, 3) * 4
+    --print(result)
 
-        return result
-    end
+    return result
+end
 
-    function ina219:read_current()
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.TRANSMITTER)
-        i2c.write(self.id,self.current_reg)
-        i2c.stop(self.id)
+function ina219:read_current()
+    local number = self:read(self.current_reg)
 
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.RECEIVER)
-        number=i2c.read(self.id, 2) -- read 16bit val
-        i2c.stop(self.id)
+    local h,l = string.byte(number,1,2)
+    local result = h*256 + l
+    --print(result)
 
-        h,l = string.byte(number,1,2)
-        result = h*256 + l
-        --print(result)
+    return result / self.current_num
+end
 
-        return result / self.current_num
-    end
+--[[
+function ina219:read_power()
+    local number = self:read(self.power_reg)
 
-    function ina219:read_power()
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.TRANSMITTER)
-        i2c.write(self.id,self.power_reg)
-        i2c.stop(self.id)
+    local h,l = string.byte(number,1,2)
+    local result = h*256 + l
+    --print(result)
 
-        i2c.start(self.id)
-        i2c.address(self.id, self.address, i2c.RECEIVER)
-        number=i2c.read(self.id, 2) -- read 16bit val
-        i2c.stop(self.id)
+    return result / self.power_num
+end
 
-        h,l = string.byte(number,1,2)
-        result = h*256 + l
-        --print(result)
+function ina219:set_adr(adr)
+    ina219.address = adr
+end
+]]
 
-        return result / self.power_num
-    end
-    function ina219:set_adr(adr)
-        ina219.address = adr
-    end
 return ina219;
