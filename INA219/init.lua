@@ -34,7 +34,7 @@ function startup()
   abortInit = nil
   abortTest = nil
   startup = nil
-  --dofile('startup.lua')
+  dofile('startup.lua')
 end
 
 tmr.alarm(0, 1000, 0, abortInit)           -- call abortInit after 1s
