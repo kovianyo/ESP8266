@@ -5,7 +5,7 @@ function abortInit()
   -- if <CR> is pressed, call abortTest
   uart.on('data', '\r', abortTest, 0)
   -- start timer to execute startup function in 5 seconds
-  tmr.alarm(0,5000,0,startup)
+  tmr.alarm(0, 5000, 0, startup)
 end
 
 function abortTest(data)
@@ -22,11 +22,19 @@ function startup()
   -- if user requested abort, exit
   if abort == true then
       print('startup aborted')
+      abort = nil
+      abortInit = nil
+      abortTest = nil
+      startup = nil
       return
       end
   -- otherwise, start up
   print('Executing startup.lua...')
-  dofile('startup.lua')
+  abort = nil
+  abortInit = nil
+  abortTest = nil
+  startup = nil
+  --dofile('startup.lua')
 end
 
 tmr.alarm(0, 1000, 0, abortInit)           -- call abortInit after 1s
