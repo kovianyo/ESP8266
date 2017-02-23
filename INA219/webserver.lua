@@ -10,17 +10,33 @@ wifi.sta.connect()
 --ip = wifi.sta.getip()
 --print("Got IP:", ip)
 
-function Sendfile(conn, filename)
-    if file.open(filename, "r") then
-        repeat
-            local line=file.read(128)
-            if line then conn:send(line) end
-        until not line
-        file.close()
-    end
-end
-
 print("Initilaizing webserver...")
+
+function sendFile(conn, fileName)
+  if notFound then
+    conn:close()
+    notFound = nil
+    return
+  end
+
+  if fileOpen == nil then
+    if file.open(fileName, "r") then
+      fileOpen = true
+    else
+      notFound = true
+      conn:send("Not found!")
+      return
+    end
+  end
+
+  local line = file.read(128)
+  if line then conn:send(line)
+  else
+    conn:close()
+    file.close()
+    fileOpen = nil
+  end
+end
 
 function onsent(conn)
   conn:close()
@@ -28,22 +44,24 @@ function onsent(conn)
 end
 
 function onreceive(conn, payload)
-  if string.sub(payload, 0, 16) ~= "GET /favicon.ico"
+  if string.sub(payload, 0, 16) == "GET /favicon.ico"
   then
+    conn:on("sent", onsent)
+    conn:send("HTTP/1.1 404 file not found")
+  else
     local response = processRequest(payload)
     if response == nil then
+      conn:on("sent", sendFile)
       print("Sending index.html")
-      Sendfile(conn, "index.html")
+      sendFile(conn, "index.html")
     else
       print("Sending", response)
+      conn:on("sent", onsent)
       conn:send(response)
       print("after send")
     end
-  else
-    conn:send("HTTP/1.1 404 file not found")
   end
 
- conn:on("sent", onsent)
 end
 
 function listener(conn)
