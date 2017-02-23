@@ -52,6 +52,7 @@ function onreceive(conn, payload)
     local response, processed = processRequest(payload)
     if not processed then
       conn:on("sent", sendFile)
+      if response == "" then response = "index.html" end
       print("Sending file " .. response)
       sendFile(conn, "html/" .. response)
     else
