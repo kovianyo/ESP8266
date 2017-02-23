@@ -8,6 +8,7 @@ $(function() {
       <table>\
         <col width="120">\
         <col width="140">\
+        <col width="180">\
         <tr>\
           <td>\
             Current: <span id="current" style="font-weight: bold;">-</span> mA\
@@ -17,6 +18,9 @@ $(function() {
           </td>\
           <td>\
             <input type="checkbox" id="showexport" style="margin-left: 0px;"> <span>show export</span>\
+          </td>\
+          <td>\
+            Update interval: <input type="number" id="updateInterval" min="0" style="width: 60px; text-align: right;"> milliseconds\
           </td>\
         </tr>\
         <tr>\
@@ -76,6 +80,12 @@ $(function() {
     exportVoltages();
   });
 
+  interval = 3000;
+  $("#updateInterval").val(3000);
+  $("#updateInterval").change(function(){
+    interval = this.value;
+  });
+
   currents = [];
   currents.push([new Date(), 0]);
 
@@ -121,11 +131,11 @@ $(function() {
 
         if (document.getElementById("updatedata").checked) {
           if (channel == "current") {
-            setTimeout(function(){ update("voltage"); }, 3000);
+            setTimeout(function(){ update("voltage"); }, interval);
           }
 
           if (channel == "voltage") {
-            setTimeout(function(){ update("current"); }, 3000);
+            setTimeout(function(){ update("current"); }, interval);
           }
          }
        }
