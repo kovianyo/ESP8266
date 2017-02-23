@@ -49,11 +49,11 @@ function onreceive(conn, payload)
     conn:on("sent", onsent)
     conn:send("HTTP/1.1 404 file not found")
   else
-    local response = processRequest(payload)
-    if response == nil then
+    local response, processed = processRequest(payload)
+    if not processed then
       conn:on("sent", sendFile)
-      print("Sending index.html")
-      sendFile(conn, "index.html")
+      print("Sending file " .. response)
+      sendFile(conn, "html/" .. response)
     else
       print("Sending", response)
       conn:on("sent", onsent)

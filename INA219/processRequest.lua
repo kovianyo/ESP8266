@@ -1,22 +1,23 @@
 function processRequest(payload)
   local currentAction = getAction(payload)
 
-  local result = getResult(currentAction)
+  local result, processed = getResult(currentAction)
 
-  return result
+  return result, processed
 end
 
+-- retunrs the processed result and true, if could be processed, or the fileName and false, if could not be processed
 function getResult(currentAction)
   for index, action in ipairs(actions) do
     if action[1] == currentAction then
       --print("action[2]")
       --print(action[2])
       local result = action[2]()
-      return result
+      return result, true
     end
   end
 
-  return nil
+  return currentAction, false
 end
 
 function getAction(payload)
