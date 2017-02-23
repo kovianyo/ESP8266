@@ -15,6 +15,9 @@ $(function() {
           <td>\
             <input type="checkbox" id="updatedata" checked=""> update data\
           </td>\
+          <td>\
+            <input type="checkbox" id="showexport" style="margin-left: 0px;"> <span>show export</span>\
+          </td>\
         </tr>\
         <tr>\
           <td>\
@@ -39,7 +42,7 @@ $(function() {
   <div id="voltagegraph" style="width:100%; height:300px;"></div>\
 </fieldset>\
 \
-<fieldset  style="margin-bottom: 12px;">\
+<fieldset id="fieldsetExport" style="margin-bottom: 12px; display:none;">\
   <legend>Export</legend>\
   <div style="margin-bottom: 10px;">\
     <input tpye="button" id="exportCurrents" value="Export currents"> &nbsp;\
@@ -59,6 +62,10 @@ $(function() {
 
   $("#updategraphs").click(function(){
     updateGraphs(this.checked);
+  });
+
+  $("#showexport").click(function(){
+    $("#fieldsetExport").toggle(this.checked);
   });
 
   $("#exportCurrents").click(function(){
