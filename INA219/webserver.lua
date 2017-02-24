@@ -1,3 +1,4 @@
+--[[
 wifi_SSID = "KoviNet"
 wifi_password = ""
 
@@ -6,9 +7,23 @@ wifi.setmode(wifi.STATION)
 --wifi.setphymode(wifi_signal_mode)
 wifi.sta.config(wifi_SSID, wifi_password)
 wifi.sta.connect()
+]]
 
 --ip = wifi.sta.getip()
 --print("Got IP:", ip)
+
+wifi.setmode(wifi.STATIONAP)
+
+cfg = {}
+cfg.ssid = "ESP8266"
+--cfg.pwd = ""
+wifi.ap.config(cfg)
+cfg = nil
+-- wifi.ap.config({ ssid = "ESP8266" })
+
+ip = wifi.ap.getip()
+print("Wifi AccessPoint IP: " .. ip)
+ip = nil
 
 print("Initilaizing webserver...")
 
@@ -30,11 +45,12 @@ function sendFile(conn, fileName)
   end
 
   local line = file.read(128)
-  if line then conn:send(line)
+  if line then conn:send(line) --print(line)
   else
     conn:close()
     file.close()
     fileOpen = nil
+    print("file sending finished")
   end
 end
 
@@ -49,6 +65,12 @@ function onreceive(conn, payload)
     conn:on("sent", onsent)
     conn:send("HTTP/1.1 404 file not found")
   else
+    if (string.match(payload,"POST") ~= nil) then
+      conn:on("sent", onsent)
+      processPost(payload)
+      conn:send("")
+      return
+    end
     local response, processed = processRequest(payload)
     if not processed then
       conn:on("sent", sendFile)
