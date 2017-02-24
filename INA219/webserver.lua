@@ -66,9 +66,10 @@ function onreceive(conn, payload)
     conn:send("HTTP/1.1 404 file not found")
   else
     if (string.match(payload,"POST") ~= nil) then
-      conn:on("sent", onsent)
+      conn:on("sent", sendFile)
+      local processPost = dofile("wifiConfig.lua")
       processPost(payload)
-      conn:send("")
+      sendFile(conn, "html/" .. "wificonfig.html") -- TODO
       return
     end
     local response, processed = processRequest(payload)
