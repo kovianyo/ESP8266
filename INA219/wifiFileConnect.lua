@@ -1,16 +1,21 @@
 function readFiles()
   local ssid = nil
 
+  file.open("ssid.txt", "r") -- without this the file.read() returned empty string
+  file.close()
   if file.open("ssid.txt", "r") then
     ssid = file.read()
     --printString(ssid, "SSID")
     file.close()
+    print("ssid", ssid)
   else
     print("Could not open ssid.txt.")
   end
 
   local password = nil
 
+  file.open("password.txt", "r")
+  file.close()
   if file.open("password.txt", "r") then
     password = file.read()
     --printString(password, "password")
@@ -19,8 +24,10 @@ function readFiles()
     print("Could not open password.txt.")
   end
 
-  if ssid ~= nil and password ~= nil then
-    print("Connecting to AccessPoint " .. ssid .. "...")
+  if password == nil then password = "" end
+
+  if ssid ~= nil then
+    print("Connecting to AccessPoint '" .. ssid .. "'...")
     wifi.sta.config(ssid, password)
     wifi.sta.connect()
   end
