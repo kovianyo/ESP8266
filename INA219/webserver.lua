@@ -1,3 +1,5 @@
+-- http://stackoverflow.com/questions/36079145/how-to-send-multiple-data-connsend-with-the-new-sdk-nodemcu
+-- https://github.com/marcoskirsch/nodemcu-httpserver/blob/master/httpserver.lua
 --[[
 wifi_SSID = "KoviNet"
 wifi_password = ""
@@ -60,6 +62,7 @@ function onsent(conn)
 end
 
 function onreceive(conn, payload)
+  print("receiving '" .. payload .. "'")
   if string.sub(payload, 0, 16) == "GET /favicon.ico"
   then
     conn:on("sent", onsent)
