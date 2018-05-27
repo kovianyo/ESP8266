@@ -1,40 +1,13 @@
-function abortInit()
-  -- initailize abort boolean flag
-  abort = false
-  print('Press ENTER to abort startup')
-  -- if <CR> is pressed, call abortTest
-  uart.on('data', '\r', abortTest, 0)
-  -- start timer to execute startup function in 5 seconds
-  tmr.alarm(0, 5000, 0, startup)
+function checkAbort()
+  local pin = 0 -- GPIO16, D0
+  gpio.mode(pin, gpio.INPUT)
+  if (gpio.read(pin) == 0) then
+    print('aborting startup')
+    return
+  else
+    print('pull pin ' .. pin .. ' to ground to abort startup')
+    dofile('startup.lua')
+  end
 end
 
-function abortTest(data)
-  -- user requested abort
-  abort = true
-  -- turns off uart scanning
-  uart.on('data')
-  tmr.stop(0)
-  startup()
-end
-
-function startup()
-  uart.on('data')
-  -- if user requested abort, exit
-  if abort == true then
-      print('startup aborted')
-      abort = nil
-      abortInit = nil
-      abortTest = nil
-      startup = nil
-      return
-      end
-  -- otherwise, start up
-  print('Executing startup.lua...')
-  abort = nil
-  abortInit = nil
-  abortTest = nil
-  startup = nil
-  dofile('startup.lua')
-end
-
-tmr.alarm(0, 1000, 0, abortInit)           -- call abortInit after 1s
+checkAbort()
