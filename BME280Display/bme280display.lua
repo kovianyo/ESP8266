@@ -1,3 +1,5 @@
+wifi.setmode(wifi.NULLMODE) -- disable wifi
+
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
      i2c.setup(0, sda, scl, i2c.SLOW)
