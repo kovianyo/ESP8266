@@ -40,10 +40,13 @@ function draw(disp)
     local humidity = "Humidity: " .. H/1000 .. "%"
     local airpressure = " ".. P/10000 .. " kPa"
 
+    local battery = "Battery: " .. string.format("%d",(adc.read(0) * 0.00288 * 5.6 - 2.5)/5.9*100) .."%"
+
    disp:drawStr(0, 00, temperature)
    disp:drawStr(0, 10, humidity)
    disp:drawStr(0, 20, "Air pressure:")
    disp:drawStr(0, 30, airpressure)
+   disp:drawStr(0, 50, battery)
 end
 
 
