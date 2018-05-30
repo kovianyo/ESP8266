@@ -37,8 +37,8 @@ function draw(disp)
     local P, T = bme280.baro()
 
     local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
-    local humidity = "Humidity: " .. H/1000 .. "%"
-    local airpressure = " ".. P/10000 .. " kPa"
+    local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
+    local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
 
     local battery = "Battery: " .. string.format("%d",(adc.read(0) * 0.00288 * 5.6 - 2.5)/5.9*100) .."%"
 
@@ -46,6 +46,7 @@ function draw(disp)
    disp:drawStr(0, 10, humidity)
    disp:drawStr(0, 20, "Air pressure:")
    disp:drawStr(0, 30, airpressure)
+   disp:drawStr(0, 40, "Uptime: " .. tmr.time() .. "s")
    disp:drawStr(0, 50, battery)
 end
 
