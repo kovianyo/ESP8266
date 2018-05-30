@@ -32,6 +32,29 @@ disp = init(sda,scl)
 
 print(bme280.setup()) -- "2" is BME280
 
+function getUptimeString()
+  local uptime = tmr.time()
+
+  local seconds = uptime % 60
+  local uptimeString = seconds .. "s"
+  uptime = (uptime - seconds) / 60
+  if uptime < 1 then return uptimeString end
+
+  local minutes = uptime % 60
+  uptimeString = minutes .. "m " .. uptimeString
+  uptime = (uptime - minutes) / 60
+  if uptime < 1 then return uptimeString end
+
+  local hours = uptime % 24
+  uptimeString = hours .. "h " .. uptimeString
+  uptime = (uptime - hours) / 24
+  if uptime < 1 then return uptimeString end
+
+  uptimeString = uptime .. "d " .. uptimeString
+
+  return uptimeString
+end
+
 function draw(disp)
     local H, T = bme280.humi()
     local P, T = bme280.baro()
@@ -46,7 +69,7 @@ function draw(disp)
    disp:drawStr(0, 10, humidity)
    disp:drawStr(0, 20, "Air pressure:")
    disp:drawStr(0, 30, airpressure)
-   disp:drawStr(0, 40, "Uptime: " .. tmr.time() .. "s")
+   disp:drawStr(0, 40, "Uptime: " .. getUptimeString())
    disp:drawStr(0, 50, battery)
 end
 
