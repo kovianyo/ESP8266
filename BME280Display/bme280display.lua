@@ -55,6 +55,17 @@ function getUptimeString()
   return uptimeString
 end
 
+function getBatteryPercent(adcValue)
+  local minimumVoltage = 5.5
+  local maximumVoltage = 8.0
+
+  local adcFactor = 0.00272093
+  local voltageDividerFactor = 5.7
+
+  local percent = (adcValue * adcFactor * voltageDividerFactor - minimumVoltage)/(maximumVoltage - minimumVoltage) * 100;
+  return percent
+end
+
 function draw(disp)
     local H, T = bme280.humi()
     local P, T = bme280.baro()
@@ -63,7 +74,7 @@ function draw(disp)
     local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
     local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
 
-    local battery = "Battery: " .. string.format("%d",(adc.read(0) * 0.00288 * 5.6 - 2.5)/5.9*100) .."%"
+    local battery = "Battery: " .. string.format("%d",getBatteryPercent(adc.read(0))) .."%"
 
    disp:drawStr(0, 00, temperature)
    disp:drawStr(0, 10, humidity)
