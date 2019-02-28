@@ -41,7 +41,7 @@ function getColors(count)
         local color = string.char(r,g,b)
         array[i] = color;
     end
-    
+
     return array
 end
 
@@ -49,6 +49,7 @@ tmr.stop(0)
 LEDCOUNT = 60
 array = getColors(LEDCOUNT)
 start = 0
+ws2812.init()
 
 function setcolor()
     j = 0
@@ -56,9 +57,9 @@ function setcolor()
     for j = 0, LEDCOUNT, 1 do
         colors = colors .. array[(start + j) % #array]
     end
-        
-    ws2812.writergb(4, colors)
-    
+
+    ws2812.write(colors)
+
     start = start + 1
     if start > LEDCOUNT then start = 0 end
     tmr.alarm(0, 1, 0, setcolor)
