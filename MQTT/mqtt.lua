@@ -20,25 +20,7 @@ function setLed(on)
   end
 end
 
-function setupMqtt()
-  print("setting up MQTT")
-
-  m = mqtt.Client(CLIENT_ID, 120)
-
-  m:on("message", function(client, topic, data)
-    print(topic .. ":" )
-    if data ~= nil then
-      print(data)
-      if (topic == TOPIC) then
-        if (data == "on") then
-          setLed(true)
-        else
-          setLed(false)
-       end
-     end
-    end
-  end)
-
+function mqttConnect(m)
   m:connect(BROKER_IP, 1883, 0, function(client)
     print("connected to mqtt broker")
 
@@ -55,7 +37,32 @@ function setupMqtt()
   function(client, reason)
     print("mqtt broker failed, reason: " .. reason)
   end)
+end
 
+
+function handleMessage(client, topic, data)
+  print(topic .. ":" )
+  if data ~= nil then
+    print(data)
+    if (topic == TOPIC) then
+      if (data == "on") then
+        setLed(true)
+      else
+        setLed(false)
+     end
+   end
+  end
+end
+
+function setupMqtt()
+  print("setting up MQTT...")
+
+  m = mqtt.Client(CLIENT_ID, 120)
+
+  m:on("message", handleMessage)
+  m:on("offline", function() print("mqtt offline") end)
+
+  mqttConnect(m)
 end
 
 print("wifi status:" .. wifi.sta.status())
@@ -88,6 +95,7 @@ function setInterval(on, off)
   blink()
 end
 
+-- level: 0..2: getting faster, 3: continuous with small breaks
 function setBlinkLevel(level)
   if level == 0 then setInterval(1000)
   elseif level == 1 then setInterval(500)
@@ -95,7 +103,6 @@ function setBlinkLevel(level)
   else setInterval(1000, 50)
   end
 end
-
 
 setBlinkLevel(0)
 
