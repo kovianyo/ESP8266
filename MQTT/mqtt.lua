@@ -13,6 +13,8 @@ station_cfg.ssid="KoviNet"
 wifi.sta.config(station_cfg)
 station_cfg = nil
 
+client = nil
+
 function setLed(on)
   if (on) then
     gpio.write(ledPin, gpio.HIGH)
@@ -74,7 +76,7 @@ end
 function setupMqtt()
   print("setting up MQTT...")
 
-  local client = mqtt.Client(CLIENT_ID, 120)
+  client = mqtt.Client(CLIENT_ID, 120)
 
   client:on("message", handleMessage)
   client:on("offline", function() handleBrokerOffline(client) end)
@@ -136,4 +138,9 @@ end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
  print("wifi event: Station - DISCONNECTED, SSID: "..T.SSID..", BSSID: ".. T.BSSID..", reason: "..T.reason)
+ setBlinkLevel(0)
+ if client ~= nil then
+   client:close()
+   client = nil
+ end
 end)
