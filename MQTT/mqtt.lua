@@ -23,25 +23,26 @@ end
 function handleMqqtConnectFailure(client, reason)
   print("[" .. tmr.now() .. "] connect to mqtt broker failed, reason: " .. reason .. ". retrying...")
   local mytimer = tmr.create()
-  mytimer:register(1000, tmr.ALARM_SINGLE, function (t) mqttConnect(client); t:unregister() end)
+  mytimer:register(2000, tmr.ALARM_SINGLE, function (t) mqttConnect(client); t:unregister() end)
   mytimer:start()
 end
 
-function mqttConnect(m)
-  m:connect(BROKER_IP, 1883, 0, function(client)
-    print("connected to mqtt broker")
+function handleMqqtConnectSuccess(client)
+  print("connected to mqtt broker")
 
-    -- subscribe topic with qos = 0
-    local success = client:subscribe(TOPIC, 2,
-     function(client)
-      print("subscribe success")
-      setBlinkLevel(3)
-    end)
-    if (not success) then print("subscribe unsuccess ful") end
-    -- publish a message with data = hello, QoS = 0, retain = 0
-    --client:publish("/topic", "hello", 0, 0, function(client) print("sent") end)
-  end,
-  handleMqqtConnectFailure)
+  -- subscribe topic with qos = 0
+  local success = client:subscribe(TOPIC, 2,
+   function(client)
+    print("subscribe success")
+    setBlinkLevel(3)
+  end)
+  if (not success) then print("subscribe unsuccess ful") end
+  -- publish a message with data = hello, QoS = 0, retain = 0
+  --client:publish("/topic", "hello", 0, 0, function(client) print("sent") end)
+end
+
+function mqttConnect(m)
+  m:connect(BROKER_IP, 1883, 0, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
 
