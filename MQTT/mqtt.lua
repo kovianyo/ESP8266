@@ -20,6 +20,13 @@ function setLed(on)
   end
 end
 
+function handleMqqtConnectFailure(client, reason)
+  print("[" .. tmr.now() .. "] connect to mqtt broker failed, reason: " .. reason .. ". retrying...")
+  local mytimer = tmr.create()
+  mytimer:register(1000, tmr.ALARM_SINGLE, function (t) mqttConnect(client); t:unregister() end)
+  mytimer:start()
+end
+
 function mqttConnect(m)
   m:connect(BROKER_IP, 1883, 0, function(client)
     print("connected to mqtt broker")
@@ -34,9 +41,7 @@ function mqttConnect(m)
     -- publish a message with data = hello, QoS = 0, retain = 0
     --client:publish("/topic", "hello", 0, 0, function(client) print("sent") end)
   end,
-  function(client, reason)
-    print("mqtt broker failed, reason: " .. reason)
-  end)
+  handleMqqtConnectFailure)
 end
 
 
@@ -60,7 +65,7 @@ function setupMqtt()
   m = mqtt.Client(CLIENT_ID, 120)
 
   m:on("message", handleMessage)
-  m:on("offline", function() print("mqtt offline") end)
+  m:on("offline", function() print("mqtt broker went offline") end)
 
   mqttConnect(m)
 end
