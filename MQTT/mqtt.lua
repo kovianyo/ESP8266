@@ -41,8 +41,8 @@ function handleMqqtConnectSuccess(client)
   --client:publish("/topic", "hello", 0, 0, function(client) print("sent") end)
 end
 
-function mqttConnect(m)
-  m:connect(BROKER_IP, 1883, 0, handleMqqtConnectSuccess, handleMqqtConnectFailure)
+function mqttConnect(clinet)
+  clinet:connect(BROKER_IP, 1883, 0, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
 
@@ -63,12 +63,12 @@ end
 function setupMqtt()
   print("setting up MQTT...")
 
-  m = mqtt.Client(CLIENT_ID, 120)
+  local clinet = mqtt.Client(CLIENT_ID, 120)
 
-  m:on("message", handleMessage)
-  m:on("offline", function() print("mqtt broker went offline") end)
+  clinet:on("message", handleMessage)
+  clinet:on("offline", function() print("mqtt broker went offline") end)
 
-  mqttConnect(m)
+  mqttConnect(clinet)
 end
 
 print("wifi status:" .. wifi.sta.status())
