@@ -1,6 +1,7 @@
 BROKER_IP = "192.168.1.148"
 CLIENT_ID = "clientid"
 TOPIC = "switch"
+RECONNECT_INTERVAL = 2000
 
 ledPin = 5 -- D5, GPIO14
 gpio.mode(ledPin, gpio.OUTPUT)
@@ -20,11 +21,15 @@ function setLed(on)
   end
 end
 
+function runAfter(milliseconds, action)
+  local mytimer = tmr.create()
+  mytimer:register(milliseconds, tmr.ALARM_SINGLE, function (t) action(); t:unregister() end)
+  mytimer:start()
+end
+
 function handleMqqtConnectFailure(client, reason)
   print("[" .. tmr.now() .. "] connect to mqtt broker failed, reason: " .. reason .. ". retrying...")
-  local mytimer = tmr.create()
-  mytimer:register(2000, tmr.ALARM_SINGLE, function (t) mqttConnect(client); t:unregister() end)
-  mytimer:start()
+  runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
 function handleMqqtConnectSuccess(client)
@@ -33,16 +38,16 @@ function handleMqqtConnectSuccess(client)
   -- subscribe topic with qos = 0
   local success = client:subscribe(TOPIC, 2,
    function(client)
-    print("subscribe success")
+    print("successfully subscribed to topic '" .. TOPIC .. "'")
     setBlinkLevel(3)
   end)
-  if (not success) then print("subscribe unsuccess ful") end
+  if (not success) then print("subscribe unsuccessful") end
   -- publish a message with data = hello, QoS = 0, retain = 0
   --client:publish("/topic", "hello", 0, 0, function(client) print("sent") end)
 end
 
-function mqttConnect(clinet)
-  clinet:connect(BROKER_IP, 1883, 0, handleMqqtConnectSuccess, handleMqqtConnectFailure)
+function mqttConnect(client)
+  client:connect(BROKER_IP, 1883, 0, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
 
@@ -60,15 +65,21 @@ function handleMessage(client, topic, data)
   end
 end
 
+function handleBrokerOffline(client)
+  setBlinkLevel(2)
+  print("mqtt broker went offline, reconnecting...")
+  runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
+end
+
 function setupMqtt()
   print("setting up MQTT...")
 
-  local clinet = mqtt.Client(CLIENT_ID, 120)
+  local client = mqtt.Client(CLIENT_ID, 120)
 
-  clinet:on("message", handleMessage)
-  clinet:on("offline", function() print("mqtt broker went offline") end)
+  client:on("message", handleMessage)
+  client:on("offline", function() handleBrokerOffline(client) end)
 
-  mqttConnect(clinet)
+  mqttConnect(client)
 end
 
 print("wifi status:" .. wifi.sta.status())
