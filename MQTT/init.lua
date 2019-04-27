@@ -6,7 +6,8 @@ local checkAbort = function()
     print('Startup aborted.')
     return
   else
-    print('Starting up.. (pull pin ' .. pin .. ' to ground to abort startup)\n')
+    print('Starting up... (pull pin ' .. pin .. ' to ground to abort startup)')
+    print()
     node.task.post(function() dofile('startup.lua') end)
   end
 end
