@@ -12,11 +12,54 @@ local printBootReason = function()
   end
 end
 
+local printWifInfo = function()
+  local modePrefix = "Wifi mode: "
+
+  local mode = wifi.getmode()
+  if mode == wifi.STATION then print(modePrefix .. "Station")
+  elseif reason == wifi.SOFTAP then print(modePrefix .. "Access Point")
+  elseif reason == wifi.STATIONAP then print(modePrefix .. "Station and Acccess Point")
+  elseif reason == wifi.NULLMODE then print(modePrefix .. "Nullmode")
+  end
+
+  local phyModePrefix = "Physical mode: "
+
+  local phyMode = wifi.getphymode()
+  if mode == wifi.PHYMODE_B then print(phyModePrefix .. "b")
+  elseif reason == wifi.PHYMODE_G then print(phyModePrefix .. "g")
+  elseif reason == wifi.PHYMODE_N then print(phyModePrefix .. "n")
+  end
+
+  print("MAC address: " .. wifi.sta.getmac())
+  print("Hostname: " .. wifi.sta.gethostname())
+
+  local statusPrefix = "Wifi status: "
+  local status = wifi.sta.status()
+  if status == wifi.STA_IDLE then print(statusPrefix .. "Idle")
+  elseif status == wifi.STA_CONNECTING then print(statusPrefix .. "Connecting")
+  elseif status == wifi.STA_WRONGPWD then print(statusPrefix .. "WrongPwd")
+  elseif status == wifi.STA_APNOTFOUND then print(statusPrefix .. "APNotFound")
+  elseif status == wifi.STA_FAIL then print(statusPrefix .. "Fail")
+  elseif status == wifi.STA_GOTIP then print(statusPrefix .. "GotIp")
+  end
+end
+
+local function printFileSystemInfo()
+  local remaining, used, total = file.fsinfo()
+  print("File system: used: " .. used .. " out of " .. total .. " bytes")
+end
+
 printBootReason()
 
 print("Chipid: " .. node.chipid() .. ", flashid: " .. node.flashid())
 print("Falsh size: " .. node.flashsize() .. " bytes")
 print("CPU at " .. node.getcpufreq() .. "MHz")
+print()
+printFileSystemInfo()
+print()
+printWifInfo()
+print()
+print("Boot time: " .. tmr.now() .. " ms")
 print()
 print("Heap size: " .. node.heap() .. " bytes")
 print()
