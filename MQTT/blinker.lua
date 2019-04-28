@@ -1,7 +1,9 @@
 -- defautl led pin
-local ledPin = 5 -- D5, GPIO14
+local defaultLedPin = 4 -- D4, GPIO2
 
-local timer = tmr.create()
+local ledPin = nil
+
+local timer = nil
 
 local onInterval = 1000
 local offInterval = 1000
@@ -30,23 +32,26 @@ local function setInterval(on, off)
   blink()
 end
 
--- level: 0..2: getting faster, 3: continuous with small breaks
-local function setBlinkLevel(level)
-  if level == 0 then setInterval(1000)
-  elseif level == 1 then setInterval(500)
-  elseif level == 2 then setInterval(300)
-  else setInterval(1000, 50)
-  end
-end
-
 local function setup(pin, defaultState)
+  if pin == nil then pin = defaultLedPin end
   if defaultState == nil then defaultState = gpio.LOW end
   ledPin = pin
   gpio.mode(ledPin, gpio.OUTPUT)
   gpio.write(ledPin, defaultState)
+  timer = tmr.create()
+end
+
+-- level: 0..2: getting faster, 3: continuous with small breaks
+local function setLevel(level)
+  if timer == nil then setup() end
+  if level == 0 then setInterval(1000)
+  elseif level == 1 then setInterval(500)
+  elseif level == 2 then setInterval(300)
+  else setInterval(2000, 1)
+  end
 end
 
 return {
-  setLevel = setBlinkLevel,
-  setup = setup
+  setup = setup,
+  setLevel = setLevel
 }
