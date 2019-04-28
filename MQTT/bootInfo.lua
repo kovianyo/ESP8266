@@ -17,17 +17,17 @@ local printWifInfo = function()
 
   local mode = wifi.getmode()
   if mode == wifi.STATION then print(modePrefix .. "Station")
-  elseif reason == wifi.SOFTAP then print(modePrefix .. "Access Point")
-  elseif reason == wifi.STATIONAP then print(modePrefix .. "Station and Acccess Point")
-  elseif reason == wifi.NULLMODE then print(modePrefix .. "Nullmode")
+  elseif mode == wifi.SOFTAP then print(modePrefix .. "Access Point")
+  elseif mode == wifi.STATIONAP then print(modePrefix .. "Station and Acccess Point")
+  elseif mode == wifi.NULLMODE then print(modePrefix .. "Nullmode")
   end
 
   local phyModePrefix = "Physical mode: "
 
   local phyMode = wifi.getphymode()
-  if mode == wifi.PHYMODE_B then print(phyModePrefix .. "b")
-  elseif reason == wifi.PHYMODE_G then print(phyModePrefix .. "g")
-  elseif reason == wifi.PHYMODE_N then print(phyModePrefix .. "n")
+  if phyMode == wifi.PHYMODE_B then print(phyModePrefix .. "b")
+  elseif phyMode == wifi.PHYMODE_G then print(phyModePrefix .. "g")
+  elseif phyMode == wifi.PHYMODE_N then print(phyModePrefix .. "n")
   end
 
   print("MAC address: " .. wifi.sta.getmac())
