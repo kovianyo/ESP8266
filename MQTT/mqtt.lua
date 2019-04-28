@@ -87,8 +87,6 @@ function setupMqtt()
   mqttConnect(client)
 end
 
-print("wifi status:" .. wifi.sta.status())
-
 blinker.setLevel(0)
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
