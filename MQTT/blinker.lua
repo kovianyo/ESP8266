@@ -1,3 +1,4 @@
+-- defautl led pin
 local ledPin = 5 -- D5, GPIO14
 
 local timer = tmr.create()
@@ -38,6 +39,14 @@ local function setBlinkLevel(level)
   end
 end
 
+local function setup(pin, defaultState)
+  if defaultState == nil then defaultState = gpio.LOW end
+  ledPin = pin
+  gpio.mode(ledPin, gpio.OUTPUT)
+  gpio.write(ledPin, defaultState)
+end
+
 return {
-  set = setBlinkLevel
+  set = setBlinkLevel,
+  setup = setup
 }

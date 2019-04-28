@@ -16,6 +16,7 @@ station_cfg = nil
 client = nil
 
 blinker = dofile("blinker.lua")
+blinker.setup(4) -- D4, GPIO2
 blinker.set(0)
 
 function setLed(on)
