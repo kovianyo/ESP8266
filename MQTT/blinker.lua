@@ -47,6 +47,6 @@ local function setup(pin, defaultState)
 end
 
 return {
-  set = setBlinkLevel,
+  setLevel = setBlinkLevel,
   setup = setup
 }

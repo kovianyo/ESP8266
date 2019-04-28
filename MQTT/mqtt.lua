@@ -17,7 +17,7 @@ client = nil
 
 blinker = dofile("blinker.lua")
 blinker.setup(4) -- D4, GPIO2
-blinker.set(0)
+blinker.setLevel(0)
 
 function setSwitch(on)
   if (on) then
@@ -45,7 +45,7 @@ function handleMqqtConnectSuccess(client)
   local success = client:subscribe(TOPIC, 2,
    function(client)
     print("successfully subscribed to topic '" .. TOPIC .. "'")
-    blinker.set(3)
+    blinker.setLevel(3)
   end)
   if (not success) then print("subscribe unsuccessful") end
   -- publish a message with data = hello, QoS = 0, retain = 0
@@ -72,7 +72,7 @@ function handleMessage(client, topic, data)
 end
 
 function handleBrokerOffline(client)
-  blinker.set(2)
+  blinker.setLevel(2)
   print("mqtt broker went offline, reconnecting...")
   runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
@@ -90,22 +90,22 @@ end
 
 print("wifi status:" .. wifi.sta.status())
 
-blinker.set(0)
+blinker.setLevel(0)
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
  print("wifi event: Station - CONNECTED. SSID: "..T.SSID..", BSSID: ".. T.BSSID..", Channel: "..T.channel)
- blinker.set(1)
+ blinker.setLevel(1)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
  print("wifi event: Station - GOT IP. Station IP: "..T.IP..", Subnet mask: ".. T.netmask..", Gateway IP: "..T.gateway)
- blinker.set(2)
+ blinker.setLevel(2)
  setupMqtt()
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
  print("wifi event: Station - DISCONNECTED, SSID: "..T.SSID..", BSSID: ".. T.BSSID..", reason: "..T.reason)
- blinker.set(0)
+ blinker.setLevel(0)
  if client ~= nil then
    client:close()
    client = nil
