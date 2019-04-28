@@ -3,10 +3,10 @@ CLIENT_ID = "clientid"
 TOPIC = "switch"
 RECONNECT_INTERVAL = 2000
 
-ledPin = 5 -- D5, GPIO14
-gpio.mode(ledPin, gpio.OUTPUT)
-gpio.write(ledPin, gpio.LOW)
---gpio.write(ledPin, gpio.HIGH)
+switchPin = 5 -- D5, GPIO14
+gpio.mode(switchPin, gpio.OUTPUT)
+gpio.write(switchPin, gpio.LOW)
+--gpio.write(switchPin, gpio.HIGH)
 
 station_cfg={}
 station_cfg.ssid="KoviNet"
@@ -19,11 +19,11 @@ blinker = dofile("blinker.lua")
 blinker.setup(4) -- D4, GPIO2
 blinker.set(0)
 
-function setLed(on)
+function setSwitch(on)
   if (on) then
-    gpio.write(ledPin, gpio.HIGH)
+    gpio.write(switchPin, gpio.HIGH)
   else
-    gpio.write(ledPin, gpio.LOW)
+    gpio.write(switchPin, gpio.LOW)
   end
 end
 
@@ -63,9 +63,9 @@ function handleMessage(client, topic, data)
     print(data)
     if (topic == TOPIC) then
       if (data == "on") then
-        setLed(true)
+        setSwitch(true)
       else
-        setLed(false)
+        setSwitch(false)
      end
    end
   end
