@@ -1,5 +1,8 @@
 wifi.setmode(wifi.NULLMODE) -- disable wifi
 
+scl = 1 -- D1, GPIO5
+sda = 2 -- D2, GPIO4
+
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
      i2c.setup(0, sda, scl, i2c.SLOW)
@@ -23,14 +26,8 @@ function drawPages(disp, draw)
      i = i + 1
    until disp:nextPage() == false
    local endTime = tmr.now()
-   print("elapsed: " .. (endTime - startTime))
+   print("Display update took " .. (endTime - startTime) .. " ms")
 end
-
-sda = 2
-scl = 1
-disp = init(sda,scl)
-
-print(bme280.setup()) -- "2" is BME280
 
 function getUptimeString()
   local uptime = tmr.time()
@@ -67,25 +64,28 @@ function getBatteryPercent(adcValue)
 end
 
 function draw(disp)
-    local H, T = bme280.humi()
-    local P, T = bme280.baro()
+  local H, T = bme280.humi()
+  local P, T = bme280.baro()
 
-    local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
-    local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
-    local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
+  local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
+  local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
+  local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
 
-    local battery = "Battery: " .. string.format("%d",getBatteryPercent(adc.read(0))) .."%"
+  local battery = "Battery: " .. string.format("%d",getBatteryPercent(adc.read(0))) .."%"
 
-   disp:drawStr(0, 00, temperature)
-   disp:drawStr(0, 10, humidity)
-   disp:drawStr(0, 20, "Air pressure:")
-   disp:drawStr(0, 30, airpressure)
-   disp:drawStr(0, 40, "Uptime: " .. getUptimeString())
-   disp:drawStr(0, 50, battery)
+  disp:drawStr(0, 00, temperature)
+  disp:drawStr(0, 10, humidity)
+  disp:drawStr(0, 20, "Air pressure:")
+  disp:drawStr(0, 30, airpressure)
+  disp:drawStr(0, 40, "Uptime: " .. getUptimeString())
+  disp:drawStr(0, 50, battery)
 end
 
 
--- drawPages(disp, draw)
+disp = init(sda,scl)
+bme280result = bme280.setup() -- "2" is BME280
+if bme280result ~= 2 then print("BME280 setup failed.") end
+bme280result = nil
 
 mytimer = tmr.create()
 
