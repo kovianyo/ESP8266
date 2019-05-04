@@ -3,6 +3,9 @@ wifi.setmode(wifi.NULLMODE) -- disable wifi
 scl = 1 -- D1, GPIO5
 sda = 2 -- D2, GPIO4
 
+pressureLow = nil
+pressureHigh = nil
+
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
      i2c.setup(0, sda, scl, i2c.SLOW)
@@ -49,27 +52,40 @@ function getBatteryPercent(adcValue)
   return percent
 end
 
+function formatPressure(pressure)
+  return string.format("%.3f", pressure)
+end
+
 function getDisplayValues()
   local H, T = bme280.humi()
   local P, T = bme280.baro()
 
   local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
   local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
-  local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
-  local uptime = getUptimeString()
-  local battery = "Battery: " .. string.format("%d", getBatteryPercent(adc.read(0))) .."%"
+  local pressure = P/10000
+  local airpressure = " " .. formatPressure(pressure) .. " kPa"
 
-  return temperature, humidity, airpressure, uptime, battery
+  if pressureLow == nil then pressureLow = pressure end
+  if pressureHigh == nil then pressureHigh = pressure end
+  if pressure < pressureLow then pressureLow = pressure end
+  if pressure > pressureHigh then pressureHigh = pressure end
+
+  local pressurePeaks = "L " .. formatPressure(pressureLow) .. " H " .. formatPressure(pressureHigh)
+
+  local uptime = getUptimeString()
+  local battery = string.format("%d", getBatteryPercent(adc.read(0))) .."%"
+
+  return temperature, humidity, airpressure, pressurePeaks, uptime, battery
 end
 
 function drawPages(display, draw)
-  local temperature, humidity, airpressure, uptime, battery = getDisplayValues()
+  local temperature, humidity, airpressure, pressurePeaks, uptime, battery = getDisplayValues()
   local startTime = tmr.now()
 
   display:firstPage()
 
   repeat
-   draw(display, temperature, humidity, airpressure, uptime, battery)
+   draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery)
   until display:nextPage() == false
 
   local endTime = tmr.now()
@@ -77,18 +93,19 @@ function drawPages(display, draw)
   print(temperature)
   print(humidity)
   print("Air pressure: " .. airpressure)
-  print(battery)
+  print(pressurePeaks)
+  print("Battery: " .. battery)
   print("Display update took " .. (endTime - startTime) .. " ms")
   print()
 end
 
-function draw(display, temperature, humidity, airpressure, uptime, battery)
+function draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery)
   display:drawStr(0, 00, temperature)
   display:drawStr(0, 10, humidity)
-  display:drawStr(0, 20, "Air pressure:")
-  display:drawStr(0, 30, airpressure)
+  display:drawStr(0, 20, "Airp.:" .. airpressure)
+  display:drawStr(0, 30, pressurePeaks)
   display:drawStr(0, 40, "Uptime: " .. uptime)
-  display:drawStr(0, 50, battery)
+  display:drawStr(0, 50, "Battery: " .. battery)
 end
 
 
