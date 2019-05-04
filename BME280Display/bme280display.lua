@@ -73,7 +73,13 @@ function drawPages(display, draw)
   until display:nextPage() == false
 
   local endTime = tmr.now()
+  print("Uptime: " .. uptime)
+  print(temperature)
+  print(humidity)
+  print("Air pressure: " .. airpressure)
+  print(battery)
   print("Display update took " .. (endTime - startTime) .. " ms")
+  print()
 end
 
 function draw(display, temperature, humidity, airpressure, uptime, battery)
