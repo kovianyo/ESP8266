@@ -15,20 +15,6 @@ function init(sda,scl) --Set up the u8glib lib
      return disp
 end
 
-function drawPages(disp, draw)
-   local startTime = tmr.now()
-   disp:firstPage()
-   local i = 0
-   repeat
-     draw(disp)
-     --disp:drawStr(x, y, str)
-     --print(i)
-     i = i + 1
-   until disp:nextPage() == false
-   local endTime = tmr.now()
-   print("Display update took " .. (endTime - startTime) .. " ms")
-end
-
 function getUptimeString()
   local uptime = tmr.time()
 
@@ -63,21 +49,40 @@ function getBatteryPercent(adcValue)
   return percent
 end
 
-function draw(disp)
+function getDisplayValues()
   local H, T = bme280.humi()
   local P, T = bme280.baro()
 
   local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
   local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
   local airpressure = " ".. string.format("%.3f", P/10000) .. " kPa"
+  local uptime = getUptimeString()
+  local battery = "Battery: " .. string.format("%d", getBatteryPercent(adc.read(0))) .."%"
 
-  local battery = "Battery: " .. string.format("%d",getBatteryPercent(adc.read(0))) .."%"
+  return temperature, humidity, airpressure, uptime, battery
+end
 
+function drawPages(disp, draw)
+  local temperature, humidity, airpressure, uptime, battery = getDisplayValues()
+  local startTime = tmr.now()
+  disp:firstPage()
+  local i = 0
+  repeat
+   draw(disp, temperature, humidity, airpressure, uptime, battery)
+   --disp:drawStr(x, y, str)
+   --print(i)
+   i = i + 1
+  until disp:nextPage() == false
+  local endTime = tmr.now()
+  print("Display update took " .. (endTime - startTime) .. " ms")
+end
+
+function draw(disp, temperature, humidity, airpressure, uptime, battery)
   disp:drawStr(0, 00, temperature)
   disp:drawStr(0, 10, humidity)
   disp:drawStr(0, 20, "Air pressure:")
   disp:drawStr(0, 30, airpressure)
-  disp:drawStr(0, 40, "Uptime: " .. getUptimeString())
+  disp:drawStr(0, 40, "Uptime: " .. uptime)
   disp:drawStr(0, 50, battery)
 end
 
