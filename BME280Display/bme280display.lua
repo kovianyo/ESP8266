@@ -6,13 +6,13 @@ sda = 2 -- D2, GPIO4
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
      i2c.setup(0, sda, scl, i2c.SLOW)
-     local disp = u8g.ssd1306_128x64_i2c(sla)
-     disp:setFont(u8g.font_6x10)
-     disp:setFontRefHeightExtendedText()
-     disp:setDefaultForegroundColor()
-     disp:setFontPosTop()
-     disp:setRot180()           -- Rotate Display if needed
-     return disp
+     local display = u8g.ssd1306_128x64_i2c(sla)
+     display:setFont(u8g.font_6x10)
+     display:setFontRefHeightExtendedText()
+     display:setDefaultForegroundColor()
+     display:setFontPosTop()
+     display:setRot180()           -- Rotate Display if needed
+     return display
 end
 
 function getUptimeString()
@@ -62,37 +62,36 @@ function getDisplayValues()
   return temperature, humidity, airpressure, uptime, battery
 end
 
-function drawPages(disp, draw)
+function drawPages(display, draw)
   local temperature, humidity, airpressure, uptime, battery = getDisplayValues()
   local startTime = tmr.now()
-  disp:firstPage()
-  local i = 0
+
+  display:firstPage()
+
   repeat
-   draw(disp, temperature, humidity, airpressure, uptime, battery)
-   --disp:drawStr(x, y, str)
-   --print(i)
-   i = i + 1
-  until disp:nextPage() == false
+   draw(display, temperature, humidity, airpressure, uptime, battery)
+  until display:nextPage() == false
+
   local endTime = tmr.now()
   print("Display update took " .. (endTime - startTime) .. " ms")
 end
 
-function draw(disp, temperature, humidity, airpressure, uptime, battery)
-  disp:drawStr(0, 00, temperature)
-  disp:drawStr(0, 10, humidity)
-  disp:drawStr(0, 20, "Air pressure:")
-  disp:drawStr(0, 30, airpressure)
-  disp:drawStr(0, 40, "Uptime: " .. uptime)
-  disp:drawStr(0, 50, battery)
+function draw(display, temperature, humidity, airpressure, uptime, battery)
+  display:drawStr(0, 00, temperature)
+  display:drawStr(0, 10, humidity)
+  display:drawStr(0, 20, "Air pressure:")
+  display:drawStr(0, 30, airpressure)
+  display:drawStr(0, 40, "Uptime: " .. uptime)
+  display:drawStr(0, 50, battery)
 end
 
 
-disp = init(sda,scl)
+display = init(sda,scl)
 bme280result = bme280.setup() -- "2" is BME280
 if bme280result ~= 2 then print("BME280 setup failed.") end
 bme280result = nil
 
 mytimer = tmr.create()
 
-mytimer:register(1000, tmr.ALARM_AUTO, function (t) drawPages(disp, draw);  end)
+mytimer:register(1000, tmr.ALARM_AUTO, function (t) drawPages(display, draw);  end)
 mytimer:start()
