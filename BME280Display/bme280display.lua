@@ -5,6 +5,7 @@ sda = 2 -- D2, GPIO4
 
 pressureLow = nil
 pressureHigh = nil
+pressureStart = nil
 
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
@@ -65,6 +66,8 @@ function getDisplayValues()
   local pressure = P/10000
   local airpressure = " " .. formatPressure(pressure) .. " kPa"
 
+  if pressureStart == nil then pressureStart = pressure end
+
   if pressureLow == nil then pressureLow = pressure end
   if pressureHigh == nil then pressureHigh = pressure end
   if pressure < pressureLow then pressureLow = pressure end
@@ -75,17 +78,19 @@ function getDisplayValues()
   local uptime = getUptimeString()
   local battery = string.format("%d", getBatteryPercent(adc.read(0))) .."%"
 
-  return temperature, humidity, airpressure, pressurePeaks, uptime, battery
+  local pressureDifference = formatPressure(pressureStart - pressure)
+
+  return temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference
 end
 
 function drawPages(display, draw)
-  local temperature, humidity, airpressure, pressurePeaks, uptime, battery = getDisplayValues()
+  local temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference = getDisplayValues()
   local startTime = tmr.now()
 
   display:firstPage()
 
   repeat
-   draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery)
+   draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference)
   until display:nextPage() == false
 
   local endTime = tmr.now()
@@ -99,13 +104,13 @@ function drawPages(display, draw)
   print()
 end
 
-function draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery)
+function draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference)
   display:drawStr(0, 00, temperature)
   display:drawStr(0, 10, humidity)
   display:drawStr(0, 20, "Airp.:" .. airpressure)
   display:drawStr(0, 30, pressurePeaks)
   display:drawStr(0, 40, "Uptime: " .. uptime)
-  display:drawStr(0, 50, "Battery: " .. battery)
+  display:drawStr(0, 50, " " .. pressureDifference)
 end
 
 
