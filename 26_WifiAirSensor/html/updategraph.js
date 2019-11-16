@@ -10,8 +10,11 @@ $(function() {
         <col width="140">\
         <col width="180">\
         <tr>\
+          <td>\
+            Temperature:\
+          </td>\
           <td style="white-space: nowrap;">\
-            Humidity: <span id="humidity" style="font-weight: bold;">-</span> %\
+            <span id="temperature" style="font-weight: bold;">-</span>\
           </td>\
           <td>\
             <input type="checkbox" id="updatedata" checked=""> update data\
@@ -25,7 +28,10 @@ $(function() {
         </tr>\
         <tr>\
           <td>\
-            \
+            Air pressure:\
+          </td>\
+          <td style="white-space: nowrap;">\
+            <span id="airpressure" style="font-weight: bold;">-</span>\
           </td>\
           <td>\
             <input type="checkbox" id="updategraphs" checked=""> update graphs\
@@ -34,12 +40,24 @@ $(function() {
             Last update: <span id="date"></span><br>\
           </td>\
         </tr>\
+        <tr>\
+          <td>\
+            Humidity:\
+          </td>\
+          <td style="white-space: nowrap;">\
+            <span id="humidity" style="font-weight: bold;">-</span> %\
+          </td>\
+        </tr>\
       </table>\
   </fieldset>\
 </div>\
 \
 <fieldset style="margin-bottom: 12px;">\
   <legend>Graphs</legend>\
+  <h2>Temperature</h2>\
+  <div id="temperaturegraph" style="width:100%; height:300px;"></div>\
+  <h2>Air pressure</h2>\
+  <div id="airpressuregraph" style="width:100%; height:300px;"></div>\
   <h2>Humidity</h2>\
   <div id="humiditygraph" style="width:100%; height:300px;"></div>\
 </fieldset>\
@@ -79,6 +97,27 @@ $(function() {
     interval = this.value;
   });
 
+  temperatures = [];
+  temperatures.push([new Date(), 0]);
+
+  temperatureGraph = new Dygraph(document.getElementById("temperaturegraph"), temperatures,
+  {
+    rollPeriod: 1,
+    showRoller: true,
+    labels: ['Time', 'Temperature']
+  });
+
+
+  airpressures = [];
+  airpressures.push([new Date(), 0]);
+
+  airpressureGraph = new Dygraph(document.getElementById("airpressuregraph"), airpressures,
+  {
+    rollPeriod: 1,
+    showRoller: true,
+    labels: ['Time', 'Air pressure']
+  });
+
   humidities = [];
   humidities.push([new Date(), 0]);
 
@@ -100,11 +139,17 @@ $(function() {
           var data = [new Date(), parseInt(xhttp.responseText)];
           if (dataArray.length == 1 && dataArray[0][1] == 0 ) { dataArray[0] = data; }
           else { dataArray.push(data); }
-          updateHumidityGraph();
+          updateGraph();
         }
 
         if (document.getElementById("updatedata").checked) {
-            setTimeout(function(){ update(channel, dataArray, updateGraph); }, interval);
+          if (channel == "temperature") {
+            setTimeout(function(){ update("airpressure", airpressures, updateAirPressureGraph); }, interval);
+          } else if (channel == "airpressure"){
+            setTimeout(function(){ update("humidity", humidities, updateHumidityGraph); }, interval);
+          } else if (channel == "humidity"){
+            setTimeout(function(){ update("temperature", temperatures, updateTemperatureGraph); }, interval);
+          }
          }
        }
    };
@@ -114,7 +159,9 @@ $(function() {
   }
 
   function updateValues() {
-   update("humidity", humidities, updateHumidityGraph);
+   update("temperature", temperatures, updateTemperatureGraph);
+   // update("airpressure", airpressures, updateAirPressureGraph);
+   // update("humidity", humidities, updateHumidityGraph);
   }
 
   function updateData(start){
@@ -123,16 +170,28 @@ $(function() {
    }
   }
 
+  function updateTemperatureGraph() {
+    if (document.getElementById("updategraphs").checked) {
+      temperatureGraph.updateOptions( { 'file': temperatures } );
+    }
+  }
+
+  function updateAirPressureGraph() {
+    if (document.getElementById("updategraphs").checked) {
+      airpressureGraph.updateOptions( { 'file': airpressures } );
+    }
+  }
+
   function updateHumidityGraph() {
     if (document.getElementById("updategraphs").checked) {
-      //console.log(humidities);
-      //humidities[0][1] = parseInt(humidities[0][1]);
       humidityGraph.updateOptions( { 'file': humidities } );
     }
   }
 
   function updateGraphs(update){
    if (update) {
+       updateTemperatureGraph();
+       updateAirPressureGraph();
        updateHumidityGraph();
    }
   }

@@ -1,4 +1,4 @@
-function getHumidity()
+local function getHumidity()
   log("Reading humidity...")
 
   local time = tmr.now()
@@ -11,6 +11,18 @@ function getHumidity()
   return math.max(H, H2) -- filter out negative errors (zeros)
 end
 
+local function getTemperature()
+  local H, T = bme280.humi()
+  return T
+end
+
+local function getAirPressure()
+  local P, T = bme280.baro()
+  return P
+end
+
 actions = {
-  { "humidity", getHumidity }
+  { "humidity", getHumidity },
+  { "temperature", getTemperature },
+  { "airpressure", getAirPressure },
 }
