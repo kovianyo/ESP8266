@@ -14,7 +14,7 @@ $(function() {
             Temperature:\
           </td>\
           <td style="white-space: nowrap;">\
-            <span id="temperature" style="font-weight: bold;">-</span>\
+            <span id="temperature" style="font-weight: bold;">-</span> &deg;C\
           </td>\
           <td>\
             <input type="checkbox" id="updatedata" checked=""> update data\
@@ -31,7 +31,7 @@ $(function() {
             Air pressure:\
           </td>\
           <td style="white-space: nowrap;">\
-            <span id="airpressure" style="font-weight: bold;">-</span>\
+            <span id="airpressure" style="font-weight: bold;">-</span> Pa\
           </td>\
           <td>\
             <input type="checkbox" id="updategraphs" checked=""> update graphs\
@@ -91,7 +91,7 @@ $(function() {
     exportHumidities();
   });
 
-  interval = 3000;
+  interval = 1000;
   $("#updateInterval").val(interval);
   $("#updateInterval").change(function(){
     interval = this.value;
@@ -136,7 +136,7 @@ $(function() {
           document.getElementById(channel).innerHTML = xhttp.responseText;
           document.getElementById("date").innerHTML = getTime(new Date());
 
-          var data = [new Date(), parseInt(xhttp.responseText)];
+          var data = [new Date(), Number(xhttp.responseText)];
           if (dataArray.length == 1 && dataArray[0][1] == 0 ) { dataArray[0] = data; }
           else { dataArray.push(data); }
           updateGraph();

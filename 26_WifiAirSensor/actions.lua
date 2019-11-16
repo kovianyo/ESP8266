@@ -8,17 +8,17 @@ local function getHumidity()
 
   log("Humidity reading elapsed us: " .. tmr.now() - time)
 
-  return math.max(H, H2) -- filter out negative errors (zeros)
+  return math.max(H, H2) / 1000 -- filter out negative errors (zeros)
 end
 
 local function getTemperature()
   local H, T = bme280.humi()
-  return T
+  return T / 100
 end
 
 local function getAirPressure()
   local P, T = bme280.baro()
-  return P
+  return P / 10
 end
 
 actions = {
