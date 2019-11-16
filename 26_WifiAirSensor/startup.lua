@@ -1,0 +1,8 @@
+node.task.post(function()
+  dofile('bme280init.lua')
+  dofile('initWifi.lua')
+  dofile('actions.lua')
+  dofile('utils.lua')
+  dofile('processRequest.lua')
+  dofile('webserver.lua')
+end)
