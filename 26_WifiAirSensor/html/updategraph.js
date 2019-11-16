@@ -74,7 +74,7 @@ $(function() {
   });
 
   interval = 3000;
-  $("#updateInterval").val(3000);
+  $("#updateInterval").val(interval);
   $("#updateInterval").change(function(){
     interval = this.value;
   });
@@ -86,10 +86,10 @@ $(function() {
   {
     rollPeriod: 1,
     showRoller: true,
-    labels: ['Time', 'mA']
+    labels: ['Time', 'Humidity']
   });
 
-  function update(channel) {
+  function update(channel, dataArray, updateGraph) {
    var xhttp = new XMLHttpRequest();
    xhttp.onreadystatechange = function() {
        if (this.readyState == 4) {
@@ -97,27 +97,24 @@ $(function() {
           document.getElementById(channel).innerHTML = xhttp.responseText;
           document.getElementById("date").innerHTML = getTime(new Date());
 
-          if (channel == "humidity") {
-            var data = [new Date(), parseInt(xhttp.responseText)];
-            if (humidities.length == 1 && humidities[0][1] == 0 ) { humidities[0] = data; }
-            else { humidities.push(data); }
-            updateHumidityGraph();
-          }
+          var data = [new Date(), parseInt(xhttp.responseText)];
+          if (dataArray.length == 1 && dataArray[0][1] == 0 ) { dataArray[0] = data; }
+          else { dataArray.push(data); }
+          updateHumidityGraph();
         }
 
         if (document.getElementById("updatedata").checked) {
-          if (channel == "humidity") {
-            setTimeout(function(){ update("humidity"); }, interval);
-          }
+            setTimeout(function(){ update(channel, dataArray, updateGraph); }, interval);
          }
        }
    };
+
    xhttp.open("GET", channel, true);
    xhttp.send();
   }
 
   function updateValues() {
-   update("humidity");
+   update("humidity", humidities, updateHumidityGraph);
   }
 
   function updateData(start){
