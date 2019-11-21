@@ -4,7 +4,7 @@ local MQTT_RECONNECT_INTERVAL = 2000
 
 client = nil
 
-blinker = dofile("blinker.lua")
+local blinker = dofile("blinker.lua")
 blinker.setLevel(0)
 
 local function runAfter(milliseconds, action)
@@ -62,8 +62,6 @@ local function setupMqtt()
 
   mqttConnect(client)
 end
-
-blinker.setLevel(0)
 
 local function onConnected()
   blinker.setLevel(1)
