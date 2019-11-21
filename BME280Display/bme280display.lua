@@ -121,5 +121,5 @@ bme280result = nil
 
 mytimer = tmr.create()
 
-mytimer:register(1000, tmr.ALARM_AUTO, function (t) drawPages(display, draw);  end)
+mytimer:register(500, tmr.ALARM_AUTO, function (t) drawPages(display, draw);  end)
 mytimer:start()
