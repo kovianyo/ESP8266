@@ -47,20 +47,9 @@ end
 
 
 function handleMqqtConnectSuccess(client)
-  print("Sonnected to mqtt broker")
+  print("Connected to mqtt broker")
   blinker.setLevel(3)
 
-  -- subscribe topic with qos = 0
-  --[[
-  local success = client:subscribe(TOPIC, 2,
-   function(client)
-    print("successfully subscribed to topic '" .. TOPIC .. "'")
-    blinker.setLevel(3)
-  end)
-  if (not success) then print("subscribe unsuccessful") end
-  --]]
-  -- publish a message with data = hello, QoS = 0, retain = 0
-  --client:publish("humidity", "29", 0, 0, function(client) print("sent") end)
   doMeasurement(client)
 end
 
@@ -68,20 +57,6 @@ function mqttConnect(client)
   client:connect(BROKER_IP, 1883, false, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
-
-function handleMessage(client, topic, data)
-  print(topic .. ":" )
-  if data ~= nil then
-    print(data)
-    if (topic == TOPIC) then
-      if (data == "on") then
-        setSwitch(true)
-      else
-        setSwitch(false)
-     end
-   end
-  end
-end
 
 function handleBrokerOffline(client)
   blinker.setLevel(2)
@@ -94,7 +69,7 @@ function setupMqtt()
 
   client = mqtt.Client(CLIENT_ID, 120)
 
-  client:on("message", handleMessage)
+  -- client:on("message", handleMessage)
   client:on("offline", function() handleBrokerOffline(client) end)
 
   mqttConnect(client)
@@ -109,6 +84,7 @@ end)
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
  print("wifi event: Station - GOT IP. Station IP: "..T.IP..", Subnet mask: ".. T.netmask..", Gateway IP: "..T.gateway)
+ print(" dns server: " .. net.dns.getdnsserver(0))
  blinker.setLevel(2)
  setupMqtt()
 end)
