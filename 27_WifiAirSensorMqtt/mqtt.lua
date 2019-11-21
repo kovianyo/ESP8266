@@ -2,16 +2,6 @@ BROKER_IP = ""
 CLIENT_ID = "KoviAirSensor"
 RECONNECT_INTERVAL = 2000
 
-wifi.setphymode(wifi.PHYMODE_N)
-wifi.setmode(wifi.STATION)
-
-station_cfg={}
-station_cfg.ssid = ""
-station_cfg.pwd = ""
-wifi.sta.config(station_cfg)
-station_cfg = nil
-wifi.sta.sethostname("KoviAirSensor")
-
 client = nil
 
 blinker = dofile("blinker.lua")
@@ -77,23 +67,21 @@ end
 
 blinker.setLevel(0)
 
-wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
- print("wifi event: Station - CONNECTED. SSID: "..T.SSID..", BSSID: ".. T.BSSID..", Channel: "..T.channel)
- blinker.setLevel(1)
-end)
+function onConnected()
+  blinker.setLevel(1)
+end
 
-wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
- print("wifi event: Station - GOT IP. Station IP: "..T.IP..", Subnet mask: ".. T.netmask..", Gateway IP: "..T.gateway)
- print(" dns server: " .. net.dns.getdnsserver(0))
- blinker.setLevel(2)
- setupMqtt()
-end)
+function onGotIP()
+  blinker.setLevel(2)
+  setupMqtt()
+end
 
-wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
- print("wifi event: Station - DISCONNECTED, SSID: "..T.SSID..", BSSID: ".. T.BSSID..", reason: "..T.reason)
- blinker.setLevel(0)
- if client ~= nil then
-   client:close()
-   client = nil
- end
-end)
+function onDisconneted()
+  blinker.setLevel(0)
+  if client ~= nil then
+    client:close()
+    client = nil
+  end
+end
+
+loadfile("initWifi.lua")(onConnected, onGotIP, onDisconneted)
