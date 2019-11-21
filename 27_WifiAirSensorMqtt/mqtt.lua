@@ -18,20 +18,10 @@ local function handleMqqtConnectFailure(client, reason)
   runAfter(MQTT_RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
+local measure = dofile("measure.lua")
+
 local function doMeasurement(client)
-  local H, T = bme280.humi()
-  local P, T = bme280.baro()
-
-  local temperature = T / 100
-  local airPressure = P / 10000
-  local humidity = H / 1000
-
-  print("Temperature: " .. temperature .. " C, air pressure: " .. airPressure .. " kPa, humidity: " .. humidity .. " %")
-
-  client:publish("temperature", temperature, 0, 0--[[, function(client) print("sent") end--]])
-  client:publish("airpressure", airPressure, 0, 0)
-  client:publish("humidity", humidity, 0, 0)
-
+  measure(client)
   runAfter(3000, function() doMeasurement(client) end)
 end
 
