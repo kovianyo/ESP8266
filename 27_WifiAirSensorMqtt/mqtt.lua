@@ -1,24 +1,24 @@
-BROKER_IP = ""
-CLIENT_ID = "KoviAirSensor"
-RECONNECT_INTERVAL = 2000
+local MQTT_BROKER_HOST = ""
+local MQTT_CLIENT_ID = "KoviAirSensor"
+local MQTT_RECONNECT_INTERVAL = 2000
 
 client = nil
 
 blinker = dofile("blinker.lua")
 blinker.setLevel(0)
 
-function runAfter(milliseconds, action)
+local function runAfter(milliseconds, action)
   local mytimer = tmr.create()
   mytimer:register(milliseconds, tmr.ALARM_SINGLE, function (t) action(); t:unregister() end)
   mytimer:start()
 end
 
-function handleMqqtConnectFailure(client, reason)
+local function handleMqqtConnectFailure(client, reason)
   print("[" .. tmr.now() .. "] connect to mqtt broker failed, reason: " .. reason .. ". retrying...")
-  runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
+  runAfter(MQTT_RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
-function doMeasurement(client)
+local function doMeasurement(client)
   local H, T = bme280.humi()
   local P, T = bme280.baro()
 
@@ -35,29 +35,27 @@ function doMeasurement(client)
   runAfter(3000, function() doMeasurement(client) end)
 end
 
-
-function handleMqqtConnectSuccess(client)
+local function handleMqqtConnectSuccess(client)
   print("Connected to mqtt broker")
   blinker.setLevel(3)
 
   doMeasurement(client)
 end
 
-function mqttConnect(client)
-  client:connect(BROKER_IP, 1883, false, handleMqqtConnectSuccess, handleMqqtConnectFailure)
+local function mqttConnect(client)
+  client:connect(MQTT_BROKER_HOST, 1883, false, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
-
-function handleBrokerOffline(client)
+local function handleBrokerOffline(client)
   blinker.setLevel(2)
   print("mqtt broker went offline, reconnecting...")
-  runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
+  runAfter(MQTT_RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
-function setupMqtt()
+local function setupMqtt()
   print("Setting up MQTT...")
 
-  client = mqtt.Client(CLIENT_ID, 120)
+  client = mqtt.Client(MQTT_CLIENT_ID, 120)
 
   -- client:on("message", handleMessage)
   client:on("offline", function() handleBrokerOffline(client) end)
@@ -67,16 +65,16 @@ end
 
 blinker.setLevel(0)
 
-function onConnected()
+local function onConnected()
   blinker.setLevel(1)
 end
 
-function onGotIP()
+local function onGotIP()
   blinker.setLevel(2)
   setupMqtt()
 end
 
-function onDisconneted()
+local function onDisconneted()
   blinker.setLevel(0)
   if client ~= nil then
     client:close()
