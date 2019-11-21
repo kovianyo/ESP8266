@@ -1,6 +1,5 @@
 BROKER_IP = ""
 CLIENT_ID = "KoviAirSensor"
-TOPIC = "switch"
 RECONNECT_INTERVAL = 2000
 
 wifi.setphymode(wifi.PHYMODE_N)
