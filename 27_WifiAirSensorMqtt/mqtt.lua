@@ -7,22 +7,18 @@ client = nil
 local blinker = dofile("blinker.lua")
 blinker.setLevel(0)
 
-local function runAfter(milliseconds, action)
-  local mytimer = tmr.create()
-  mytimer:register(milliseconds, tmr.ALARM_SINGLE, function (t) action(); t:unregister() end)
-  mytimer:start()
-end
+local utils = require("utils")
 
 local function handleMqqtConnectFailure(client, reason)
   print("[" .. tmr.now() .. "] connect to mqtt broker failed, reason: " .. reason .. ". retrying...")
-  runAfter(MQTT_RECONNECT_INTERVAL, function() mqttConnect(client) end)
+  utils.runAfter(MQTT_RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
 local measure = dofile("measure.lua")
 
 local function doMeasurement(client)
   measure(client)
-  runAfter(3000, function() doMeasurement(client) end)
+  utils.runAfter(3000, function() doMeasurement(client) end)
 end
 
 local function handleMqqtConnectSuccess(client)
