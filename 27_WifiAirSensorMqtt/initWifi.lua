@@ -4,8 +4,9 @@ wifi.setphymode(wifi.PHYMODE_N)
 wifi.setmode(wifi.STATION)
 
 local station_cfg={}
-station_cfg.ssid = ""
-station_cfg.pwd = ""
+station_cfg.ssid="KoviNet"
+--station_cfg.ssid = "Kovi OnePlus2"
+--station_cfg.pwd = "87654321"
 wifi.sta.config(station_cfg)
 station_cfg = nil
 wifi.sta.sethostname("KoviAirSensor")
