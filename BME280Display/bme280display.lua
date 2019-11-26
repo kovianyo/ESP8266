@@ -10,12 +10,13 @@ pressureStart = nil
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
      i2c.setup(0, sda, scl, i2c.SLOW)
-     local display = u8g.ssd1306_128x64_i2c(sla)
-     display:setFont(u8g.font_6x10)
+     local display = u8g2.ssd1306_i2c_128x64_noname(0, sla)
+     display:setFont(u8g2.font_6x10_tf)
      display:setFontRefHeightExtendedText()
-     display:setDefaultForegroundColor()
+     display:setDrawColor(1)
      display:setFontPosTop()
-     display:setRot180()           -- Rotate Display if needed
+     display:setFontDirection(0)
+     display:setFlipMode(1)
      return display
 end
 
@@ -87,11 +88,9 @@ function drawPages(display, draw)
   local temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference = getDisplayValues()
   local startTime = tmr.now()
 
-  display:firstPage()
-
-  repeat
-   draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference)
-  until display:nextPage() == false
+  display:clearBuffer() -- 327 us
+  draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference) -- 26483
+  display:sendBuffer() -- 261 756 us
 
   local endTime = tmr.now()
   print("Uptime: " .. uptime)
