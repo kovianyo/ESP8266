@@ -1,11 +1,11 @@
 local _actions = nil
 
 local function getAction(payload)
-  local firstLine = getFirstLine(payload)
+  local firstLine = Utils.GetFirstLine(payload)
 
-  log("Processing '" .. string.gsub(firstLine, '^%s*(.-)%s*$', '%1') .. "'") -- trim starting and trailing spaces and newlines
+  Utils.Log("Processing '" .. string.gsub(firstLine, '^%s*(.-)%s*$', '%1') .. "'") -- trim starting and trailing spaces and newlines
 
-  local parts = split(firstLine, "%S+")
+  local parts = Utils.Split(firstLine, "%S+")
 
   if (table.getn(parts) > 0) then
     local request = parts[1]

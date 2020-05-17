@@ -1,6 +1,6 @@
 local dolog = true
 
-function getFirstLine(text)
+local function getFirstLine(text)
   local start, stop = string.find(text, "\n")
   --print(start)
   local firstLine = string.sub(text, 0, start)
@@ -9,7 +9,7 @@ function getFirstLine(text)
 end
 
 -- "%S+"
-function split(text, pattern)
+local function split(text, pattern)
   local array = {}
   local index = 0
   for i in string.gmatch(text, pattern) do
@@ -19,12 +19,12 @@ function split(text, pattern)
   return array
 end
 
-function round(num, numDecimalPlaces)
+local function round(num, numDecimalPlaces)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + 0.5) / mult
 end
 
-function log(...)
+local function log(...)
   if dolog then print(...) end
 end
 
@@ -33,3 +33,11 @@ for k, v in pairs( _G ) do
    print(k, v)
 end
 ]]
+
+-- global
+Utils = {
+  GetFirstLine = getFirstLine,
+  Split = split,
+  Round = round,
+  Log = log
+ }

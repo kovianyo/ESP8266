@@ -1,12 +1,12 @@
 local function getHumidity()
-  log("Reading humidity...")
+  Utils.Log("Reading humidity...")
 
   local time = tmr.now()
   local H, T = bme280.humi()
 
   local H2 = bme280.humi()
 
-  log("Humidity reading elapsed us: " .. tmr.now() - time)
+  Utils.Log("Humidity reading elapsed us: " .. tmr.now() - time)
 
   local filteredHumidity = math.max(H, H2) -- filter out negative errors (zeros)
   return filteredHumidity / 1000
