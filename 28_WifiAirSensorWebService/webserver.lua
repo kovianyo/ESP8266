@@ -9,12 +9,12 @@ local function sendFile(conn, fileName)
   end
 
   if fileOpen == nil and fileName ~= nil then
-    print("Opening file " .. fileName)
+    print("Opening file '" .. fileName .. "'")
     if file.open(fileName, "r") then
       fileOpen = true
     else
       notFound = true
-      conn:send("Not found!")
+      conn:send("File '" .. fileName .. "' not found!")
       return
     end
   end
@@ -84,7 +84,7 @@ local function onreceive(conn, payload)
       conn:on("sent", sendFile)
       local fileName = request.path
       if fileName == "/" then fileName = "/index.html" end
-      print("Sending file " .. request.path)
+      print("Sending file '" .. request.path .. "'")
       sendFile(conn, "html" .. request.path)
     else
       print("Sending HTTP response body '" .. response .. "'")
