@@ -19,4 +19,6 @@ local function onDisconneted()
   blinker.setLevel(0)
 end
 
+dofile('bme280init.lua')
+
 loadfile("initWifi.lua")(onConnected, onGotIP, onDisconneted)
