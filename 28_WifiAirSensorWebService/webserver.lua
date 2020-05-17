@@ -36,33 +36,59 @@ local function onsent(conn)
   print()
 end
 
+local function getRequest(payload)
+  local firstLine = Utils.GetFirstLine(payload)
+  local trimmedFirstLine = string.gsub(firstLine, '^%s*(.-)%s*$', '%1') -- trim starting and trailing spaces and newlines
+
+  Utils.Log("Processing '" .. trimmedFirstLine .. "'")
+
+  local parts = Utils.Split(firstLine, "%S+")
+
+  if (table.getn(parts) < 2) then
+    Utils.Log("HTTP header malformed")
+    return nil
+  end
+
+  local request = {
+    verb = parts[0],
+    path = parts[1],
+    protocol = parts[2]
+  }
+
+  return request
+end
+
 local function process() end
 
 local function onreceive(conn, payload)
-  -- print("receiving '" .. payload .. "'")
-  if string.sub(payload, 0, 16) == "GET /favicon.ico"
+  conn:on("sent", onsent)
+  local request = getRequest(payload)
+
+  if (request == nil) then
+    return
+  end
+
+  if request.verb == "GET" and path == "/favicon.ico"
   then
-    conn:on("sent", onsent)
     conn:send("HTTP/1.1 404 file not found")
   else
-    if (string.match(payload,"POST") ~= nil) then
+    if (request.verb == "POST") then
       conn:on("sent", sendFile)
       local processPost = dofile("wifiConfig.lua")
       processPost(payload)
       sendFile(conn, "html/" .. "wificonfig.html") -- TODO
       return
     end
-    local response = process(payload)
+    local response = process(request.path)
     if response == nil then
       conn:on("sent", sendFile)
-      if response == "" then response = "index.html" end
-      print("Sending file " .. response)
-      sendFile(conn, "html/" .. response)
+      local fileName = request.path
+      if fileName == "/" then fileName = "/index.html" end
+      print("Sending file " .. request.path)
+      sendFile(conn, "html" .. request.path)
     else
       print("Sending HTTP response body '" .. response .. "'")
-      conn:on("sent", onsent)
       conn:send(response)
-      --print("after send")
     end
   end
 
