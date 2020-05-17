@@ -19,10 +19,12 @@ local function split(text, pattern)
   return array
 end
 
+--[[
 local function round(num, numDecimalPlaces)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + 0.5) / mult
 end
+]]
 
 local function log(...)
   if dolog then print(...) end
@@ -38,6 +40,6 @@ end
 Utils = {
   GetFirstLine = getFirstLine,
   Split = split,
-  Round = round,
+  -- Round = round,
   Log = log
  }
