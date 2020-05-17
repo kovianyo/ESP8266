@@ -1,7 +1,7 @@
 print("Connecting to AccessPoint...")
-station_cfg={}
-station_cfg.ssid = ""
-station_cfg.pwd = ""
+local station_cfg = {}
+station_cfg.ssid = "Kovi OnePlus2"
+station_cfg.pwd = "87654321"
 wifi.sta.config(station_cfg)
 wifi.sta.sethostname("KoviAirSensor")
 wifi.sta.connect()
@@ -17,7 +17,7 @@ end)
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
  print("wifi event: Station - GOT IP. Station IP: "..T.IP..", Subnet mask: ".. T.netmask..", Gateway IP: "..T.gateway)
- blinker.setLevel(2)
+ blinker.setLevel(3)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)

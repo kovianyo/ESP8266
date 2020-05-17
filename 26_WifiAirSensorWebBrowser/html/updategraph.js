@@ -97,6 +97,32 @@ $(function() {
     interval = this.value;
   });
 
+  /*
+  measures = [];
+
+  function addMeasure(channel, graphDiv, label) {
+    var measure = {};
+    measure.channel = channel;
+    measure.dataArray = [];
+    measure.dataArray.push([new Date(), 0]);
+
+    measure.graph = new Dygraph(document.getElementById("temperaturegraph"), measure.dataArray,
+    {
+      rollPeriod: 1,
+      showRoller: true,
+      labels: ['Time', label]
+    });
+
+    measures.push(measure);
+  }
+
+  addMeasure("temperature", "temperaturegraph", "Temperature");
+  addMeasure("airpressure", "airpressuregraph", "Air pressure");
+  addMeasure("humidity", "humiditygraph", "Humidity");
+
+  measureIndex = 0;
+  */
+  
   temperatures = [];
   temperatures.push([new Date(), 0]);
 
