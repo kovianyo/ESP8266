@@ -3,6 +3,9 @@
 
 print("Initilaizing webserver...")
 
+local blinker = dofile("blinker.lua")
+blinker.setLevel(0)
+
 function sendFile(conn, fileName)
   if notFound then
     conn:close()
@@ -72,8 +75,25 @@ function listener(conn)
  conn:on("receive", onreceive)
 end
 
-srv = net.createServer(net.TCP)
-srv:listen(80, listener)
+local function setupWebServer()
+  srv = net.createServer(net.TCP)
+  srv:listen(80, listener)
 
-print("Listening...")
-print("")
+  print("Listening...")
+  print("")
+end
+
+local function onConnected()
+  blinker.setLevel(1)
+end
+
+local function onGotIP()
+  blinker.setLevel(3)
+  setupWebServer()
+end
+
+local function onDisconneted()
+  blinker.setLevel(0)
+end
+
+loadfile("initWifi.lua")(onConnected, onGotIP, onDisconneted)
