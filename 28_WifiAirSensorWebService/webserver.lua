@@ -1,8 +1,6 @@
 -- http://stackoverflow.com/questions/36079145/how-to-send-multiple-data-connsend-with-the-new-sdk-nodemcu
 -- https://github.com/marcoskirsch/nodemcu-httpserver/blob/master/httpserver.lua
 
-print("Initilaizing webserver...")
-
 local blinker = dofile("blinker.lua")
 blinker.setLevel(0)
 
@@ -55,8 +53,8 @@ function onreceive(conn, payload)
       sendFile(conn, "html/" .. "wificonfig.html") -- TODO
       return
     end
-    local response, processed = processRequest(payload)
-    if not processed then
+    local response = processRequest(payload)
+    if response == nil then
       conn:on("sent", sendFile)
       if response == "" then response = "index.html" end
       print("Sending file " .. response)
@@ -76,6 +74,8 @@ function listener(conn)
 end
 
 local function setupWebServer()
+  print("Initilaizing webserver...")
+
   srv = net.createServer(net.TCP)
   srv:listen(80, listener)
 

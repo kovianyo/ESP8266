@@ -1,9 +1,13 @@
 function processRequest(payload)
   local currentAction = getAction(payload)
 
-  local result, processed = getResult(currentAction)
+  if (currentAction == nil) then
+    return nil
+  end
 
-  return result, processed
+  local result = getResult(currentAction)
+
+  return result
 end
 
 -- retunrs the processed result and true, if could be processed, or the fileName and false, if could not be processed
@@ -13,11 +17,11 @@ function getResult(currentAction)
       --print("action[2]")
       --print(action[2])
       local result = action[2]()
-      return result, true
+      return result
     end
   end
 
-  return currentAction, false
+  return nil
 end
 
 function getAction(payload)
