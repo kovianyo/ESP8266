@@ -1,24 +1,43 @@
 local _actions = nil
 
-local function getAction(payload)
+local function getRequest(payload)
   local firstLine = Utils.GetFirstLine(payload)
+  local trimmedFirstLine = string.gsub(firstLine, '^%s*(.-)%s*$', '%1') -- trim starting and trailing spaces and newlines
 
-  Utils.Log("Processing '" .. string.gsub(firstLine, '^%s*(.-)%s*$', '%1') .. "'") -- trim starting and trailing spaces and newlines
+  Utils.Log("Processing '" .. trimmedFirstLine .. "'")
 
   local parts = Utils.Split(firstLine, "%S+")
 
-  if (table.getn(parts) > 0) then
-    local request = parts[1]
-
-    if string.len(request) > 1 then
-      local fileName = string.sub(request, 2)
-      return fileName
-    else
-      return ""
-    end
+  if (table.getn(parts) < 2) then
+    Utils.Log("HTTP header malformed")
+    return nil
   end
 
-  return nil
+  local request = {
+    verb = parts[0],
+    path = parts[1],
+    protocol = parts[2]
+  }
+
+  return request
+end
+
+local function getAction(payload)
+  local request = getRequest(payload)
+
+  if (request == nil) then
+    return nil
+  end
+
+  local path = request.path
+
+  if (string.len(path) < 2) then
+    return nil
+  end
+
+  local actionName =  string.sub(path, 2) -- trim first character, the "/"
+
+  return actionName
 end
 
 -- retunrs the processed result and true, if could be processed, or the fileName and false, if could not be processed
@@ -35,7 +54,7 @@ local function getResult(currentAction)
   return nil
 end
 
-local function processRequest(payload)
+local function process(payload)
   local currentAction = getAction(payload)
 
   if (currentAction == nil) then
@@ -47,12 +66,11 @@ local function processRequest(payload)
   return result
 end
 
-
 local function setActions(actions)
   _actions = actions
 end
 
 return {
-  process = processRequest,
+  process = process,
   setActions = setActions
 }
