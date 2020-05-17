@@ -1,6 +1,9 @@
+-- PZEM-004
+
 wifi.setmode(wifi.STATION)
 wifi.sta.config("KoviNet", "")
 wifi.sta.connect()
+wifi.sta.sethostname("KoviPowerMonitor")
 --print(wifi.sta.getip())
 
 -- 192.168.1.1
