@@ -3,7 +3,7 @@ local checkAbort = function()
   gpio.mode(pin, gpio.INPUT)
   print()
   if (gpio.read(pin) == 0) then
-    print('Startup aborted.')
+    print('Startup aborted (pin 0 (GPIO16, D0) is low).')
     return
   else
     print('Starting up... (pull pin 0 (GPIO16, D0) to ground to abort startup)')
