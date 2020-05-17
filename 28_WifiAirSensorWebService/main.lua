@@ -7,8 +7,11 @@ end
 
 local function onGotIP()
   blinker.setLevel(3)
+
+  local requestProcessor = dofile("processRequest.lua")
+  requestProcessor.setActions(actions)
   local webserver = dofile("webserver.lua")
-  webserver.setup(processRequest)
+  webserver.setup(requestProcessor.process)
 end
 
 local function onDisconneted()
