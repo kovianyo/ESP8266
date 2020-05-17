@@ -20,8 +20,24 @@ local function getResult(currentAction)
   return nil
 end
 
-local function process(path)
-  local currentAction = getAction(path)
+local function getIndex()
+  local html = '<!DOCTYPE html>\n<head>\n<title>Kovi AirSensor</title>\n<link rel="icon" href="data:;base64,iVBORw0KGgo=">\n</head>'
+  html = html .. '\n<body>\n<h1>Kovi AirSensor</h1>\n<ul>\n'
+  for index, action in ipairs(_actions) do
+    local actionName = action[1]
+    html = html .. "<li><a href='/" .. actionName .."'>" .. actionName .. "</li>\n"
+  end
+  html = html .. "</ul>\n</body>\n</html>"
+  return html
+end
+
+local function process(request)
+  if (request.path == "/") then
+    local html = getIndex()
+    return html
+  end
+
+  local currentAction = getAction(request.path)
 
   if (currentAction == nil) then
     return nil

@@ -79,7 +79,7 @@ local function onreceive(conn, payload)
       sendFile(conn, "html/" .. "wificonfig.html") -- TODO
       return
     end
-    local response = process(request.path)
+    local response = process(request)
     if response == nil then
       conn:on("sent", sendFile)
       local fileName = request.path
