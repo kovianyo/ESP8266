@@ -3,10 +3,6 @@ local onConnected, onGotIP, onDisconneted = ...
 wifi.setphymode(wifi.PHYMODE_N)
 wifi.setmode(wifi.STATION)
 
-local station_cfg={}
-station_cfg.ssid=""
-wifi.sta.config(station_cfg)
-station_cfg = nil
 wifi.sta.sethostname("KoviAirSensor")
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)

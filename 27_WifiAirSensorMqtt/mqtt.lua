@@ -1,4 +1,3 @@
-local MQTT_BROKER_HOST = ""
 local MQTT_CLIENT_ID = "KoviAirSensor"
 local MQTT_RECONNECT_INTERVAL = 2000
 

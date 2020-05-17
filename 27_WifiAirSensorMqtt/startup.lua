@@ -1,5 +1,6 @@
 node.task.post(function()
   dofile('bootInfo.lua')
+  dofile('wifiCredentials.lua')
   dofile('bme280init.lua')
   dofile('mqtt.lua')
 end)
