@@ -1,9 +1,6 @@
 -- http://stackoverflow.com/questions/36079145/how-to-send-multiple-data-connsend-with-the-new-sdk-nodemcu
 -- https://github.com/marcoskirsch/nodemcu-httpserver/blob/master/httpserver.lua
 
-local blinker = dofile("blinker.lua")
-blinker.setLevel(0)
-
 function sendFile(conn, fileName)
   if notFound then
     conn:close()
@@ -83,17 +80,6 @@ local function setupWebServer()
   print("")
 end
 
-local function onConnected()
-  blinker.setLevel(1)
-end
-
-local function onGotIP()
-  blinker.setLevel(3)
-  setupWebServer()
-end
-
-local function onDisconneted()
-  blinker.setLevel(0)
-end
-
-loadfile("initWifi.lua")(onConnected, onGotIP, onDisconneted)
+return {
+  setup = setupWebServer
+}

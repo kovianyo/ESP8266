@@ -4,4 +4,5 @@ node.task.post(function() dofile('wifiCredentials.lua') end)
 node.task.post(function() dofile('actions.lua') end)
 node.task.post(function() dofile('utils.lua') end)
 node.task.post(function() dofile('processRequest.lua') end)
-node.task.post(function() dofile('webserver.lua') end)
+
+node.task.post(function() dofile('main.lua') end)
