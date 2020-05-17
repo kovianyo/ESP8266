@@ -36,6 +36,8 @@ local function onsent(conn)
   print()
 end
 
+local function process() end
+
 local function onreceive(conn, payload)
   -- print("receiving '" .. payload .. "'")
   if string.sub(payload, 0, 16) == "GET /favicon.ico"
@@ -50,7 +52,7 @@ local function onreceive(conn, payload)
       sendFile(conn, "html/" .. "wificonfig.html") -- TODO
       return
     end
-    local response = processRequest(payload)
+    local response = process(payload)
     if response == nil then
       conn:on("sent", sendFile)
       if response == "" then response = "index.html" end
@@ -70,7 +72,8 @@ local function listener(conn)
  conn:on("receive", onreceive)
 end
 
-local function setupWebServer()
+local function setupWebServer(requestProcessor)
+  process = requestProcessor
   print("Initilaizing webserver...")
 
   srv = net.createServer(net.TCP)
