@@ -8,6 +8,7 @@ end
 local function onGotIP()
   blinker.setLevel(3)
 
+  local actions = dofile("actions.lua")
   local requestProcessor = dofile("processRequest.lua")
   requestProcessor.setActions(actions)
   local webserver = dofile("webserver.lua")

@@ -9,7 +9,7 @@ local function getHumidity()
   log("Humidity reading elapsed us: " .. tmr.now() - time)
 
   local filteredHumidity = math.max(H, H2) -- filter out negative errors (zeros)
-  return filteredHumidity / 1000 
+  return filteredHumidity / 1000
 end
 
 local function getTemperature()
@@ -22,8 +22,10 @@ local function getAirPressure()
   return P / 10
 end
 
-actions = {
+local actions = {
   { "humidity", getHumidity },
   { "temperature", getTemperature },
   { "airpressure", getAirPressure },
 }
+
+return actions

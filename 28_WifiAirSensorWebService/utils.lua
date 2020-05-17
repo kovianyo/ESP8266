@@ -1,4 +1,4 @@
-dolog = true
+local dolog = true
 
 function getFirstLine(text)
   local start, stop = string.find(text, "\n")
