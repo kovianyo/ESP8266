@@ -1,7 +1,7 @@
 -- http://stackoverflow.com/questions/36079145/how-to-send-multiple-data-connsend-with-the-new-sdk-nodemcu
 -- https://github.com/marcoskirsch/nodemcu-httpserver/blob/master/httpserver.lua
 
-function sendFile(conn, fileName)
+local function sendFile(conn, fileName)
   if notFound then
     conn:close()
     notFound = nil
@@ -30,13 +30,13 @@ function sendFile(conn, fileName)
   end
 end
 
-function onsent(conn)
+local function onsent(conn)
   conn:close()
   --print("sent.")
   print()
 end
 
-function onreceive(conn, payload)
+local function onreceive(conn, payload)
   -- print("receiving '" .. payload .. "'")
   if string.sub(payload, 0, 16) == "GET /favicon.ico"
   then
@@ -66,7 +66,7 @@ function onreceive(conn, payload)
 
 end
 
-function listener(conn)
+local function listener(conn)
  conn:on("receive", onreceive)
 end
 
