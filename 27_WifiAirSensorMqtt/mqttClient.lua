@@ -30,12 +30,15 @@ local function handleBrokerOffline(client)
 end
 
 local function setupMqtt()
-  print("Setting up MQTT...")
+  print("Setting up MQTT with CLIENT_ID " .. CLIENT_ID)
 
   client = mqtt.Client(CLIENT_ID, 120)
 
-  -- client:on("message", handleMessage)
   client:on("offline", function() handleBrokerOffline(client) end)
+  -- on publish overflow receive event
+  client:on("overflow", function(client, topic, data)
+    print(topic .. " partial overflowed message: " .. data )
+  end)
 
   mqttConnect(client)
 end
