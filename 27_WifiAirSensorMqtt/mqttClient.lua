@@ -10,19 +10,20 @@ local function handleMqqtConnectFailure(client, reason)
 end
 
 local function handleMqqtConnectSuccess(client)
-  print("Connected to mqtt broker")
+  print("Connected to MQTT broker")
   blinker.setLevel(blinker.LEVEL_FAST)
 
   onConnect(client)
 end
 
 local function mqttConnect(client)
-  client:connect(BROKER_HOST, 1883, false, handleMqqtConnectSuccess, handleMqqtConnectFailure)
+  print("Connecting to MQTT broker " .. BROKER_HOST)
+  client:connect(BROKER_HOST, handleMqqtConnectSuccess, handleMqqtConnectFailure)
 end
 
 local function handleBrokerOffline(client)
   blinker.setLevel(blinker.LEVEL_MEDIUM)
-  print("mqtt broker went offline, reconnecting...")
+  print("MQTT broker went offline, reconnecting...")
   runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
@@ -34,7 +35,7 @@ local function setupMqtt()
   client:on("offline", function() handleBrokerOffline(client) end)
   -- on publish overflow receive event
   client:on("overflow", function(client, topic, data)
-    print(topic .. " partial overflowed message: " .. data )
+    print("MQTT overflow, topic: " .. topic ..", data: " ..  data)
   end)
 
   mqttConnect(client)
