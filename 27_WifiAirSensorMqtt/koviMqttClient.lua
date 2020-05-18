@@ -27,7 +27,7 @@ local function handleBrokerOffline(client)
   runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
-local function setupMqtt()
+local function setup()
   print("Setting up MQTT with CLIENT_ID " .. CLIENT_ID)
 
   client = mqtt.Client(CLIENT_ID, 120)
@@ -41,7 +41,7 @@ local function setupMqtt()
   mqttConnect(client)
 end
 
-local function closeClient()
+local function close()
   if client ~= nil then
     client:close()
     client = nil
@@ -49,6 +49,6 @@ local function closeClient()
 end
 
 return {
-  setupMqtt = setupMqtt,
-  closeClient = closeClient
+  setup = setup,
+  close = close
 }

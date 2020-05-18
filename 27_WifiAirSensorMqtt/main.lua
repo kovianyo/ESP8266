@@ -13,7 +13,7 @@ local function doMeasurement(client)
   utils.runAfter(3000, function() doMeasurement(client) end)
 end
 
-local myClient = loadfile("mqttClient.lua")(MQTT_BROKER_HOST, MQTT_CLIENT_ID, MQTT_RECONNECT_INTERVAL, doMeasurement, blinker)
+local koviMqttClient = loadfile("koviMqttClient.lua")(MQTT_BROKER_HOST, MQTT_CLIENT_ID, MQTT_RECONNECT_INTERVAL, doMeasurement, blinker)
 
 
 local function onConnected()
@@ -22,12 +22,12 @@ end
 
 local function onGotIP()
   blinker.setLevel(blinker.LEVEL_MEDIUM)
-  myClient.setupMqtt()
+  koviMqttClient.setup()
 end
 
 local function onDisconneted()
   blinker.setLevel(blinker.LEVEL_VERYSLOW)
-  myClient.closeClient()
+  koviMqttClient.close()
 end
 
 dofile('bme280init.lua')
