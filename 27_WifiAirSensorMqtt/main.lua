@@ -1,5 +1,5 @@
 local blinker = dofile("blinker.lua")
-blinker.setLevel(0)
+blinker.setLevel(blinker.LEVEL_VERYSLOW)
 
 local MQTT_CLIENT_ID = "KoviAirSensor"
 local MQTT_RECONNECT_INTERVAL = 2000
@@ -17,16 +17,16 @@ local myClient = loadfile("mqttClient.lua")(MQTT_BROKER_HOST, MQTT_CLIENT_ID, MQ
 
 
 local function onConnected()
-  blinker.setLevel(1)
+  blinker.setLevel(blinker.LEVEL_SLOW)
 end
 
 local function onGotIP()
-  blinker.setLevel(2)
+  blinker.setLevel(blinker.LEVEL_MEDIUM)
   myClient.setupMqtt()
 end
 
 local function onDisconneted()
-  blinker.setLevel(0)
+  blinker.setLevel(blinker.LEVEL_VERYSLOW)
   myClient.closeClient()
 end
 

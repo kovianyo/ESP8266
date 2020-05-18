@@ -11,7 +11,7 @@ end
 
 local function handleMqqtConnectSuccess(client)
   print("Connected to mqtt broker")
-  blinker.setLevel(3)
+  blinker.setLevel(blinker.LEVEL_FAST)
 
   onConnect(client)
 end
@@ -21,7 +21,7 @@ local function mqttConnect(client)
 end
 
 local function handleBrokerOffline(client)
-  blinker.setLevel(2)
+  blinker.setLevel(blinker.LEVEL_MEDIUM)
   print("mqtt broker went offline, reconnecting...")
   runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
