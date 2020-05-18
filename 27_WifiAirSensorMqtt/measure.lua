@@ -1,4 +1,4 @@
-local function measure(client)
+local function measure()
   local H, T = bme280.humi()
   local P, T = bme280.baro()
 
@@ -8,9 +8,11 @@ local function measure(client)
 
   print("Temperature: " .. temperature .. " C, air pressure: " .. airPressure .. " kPa, humidity: " .. humidity .. " %")
 
-  client:publish("temperature", temperature, 0, 0--[[, function(client) print("sent") end--]])
-  client:publish("airpressure", airPressure, 0, 0)
-  client:publish("humidity", humidity, 0, 0)
+  return {
+    temperature = temperature,
+    airPressure = airPressure,
+    humidity = humidity
+  }
 end
 
 return measure

@@ -24,7 +24,7 @@ end
 local function handleBrokerOffline(client)
   blinker.setLevel(blinker.LEVEL_MEDIUM)
   print("MQTT broker went offline, reconnecting...")
-  runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
+  utils.runAfter(RECONNECT_INTERVAL, function() mqttConnect(client) end)
 end
 
 local function setup()
@@ -41,6 +41,12 @@ local function setup()
   mqttConnect(client)
 end
 
+local function publish(topic, message)
+  if topic == nil then print("topic is nil") return end
+  if message == nil then print("message is nil") return end
+  client:publish(topic, message, 0, 0)
+end
+
 local function close()
   if client ~= nil then
     client:close()
@@ -50,5 +56,6 @@ end
 
 return {
   setup = setup,
+  publish = publish,
   close = close
 }
