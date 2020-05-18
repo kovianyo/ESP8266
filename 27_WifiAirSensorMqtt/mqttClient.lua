@@ -1,9 +1,6 @@
-local BROKER_HOST, CLIENT_ID, RECONNECT_INTERVAL, onConnect = ...
+local BROKER_HOST, CLIENT_ID, RECONNECT_INTERVAL, onConnect, blinker = ...
 
-client = nil
-
-local blinker = dofile("blinker.lua")
-blinker.setLevel(0)
+local client = nil
 
 local utils = require("utils")
 
@@ -43,21 +40,14 @@ local function setupMqtt()
   mqttConnect(client)
 end
 
-local function onConnected()
-  blinker.setLevel(1)
-end
-
-local function onGotIP()
-  blinker.setLevel(2)
-  setupMqtt()
-end
-
-local function onDisconneted()
-  blinker.setLevel(0)
+local function closeClient()
   if client ~= nil then
     client:close()
     client = nil
   end
 end
 
-loadfile("initWifi.lua")(onConnected, onGotIP, onDisconneted)
+return {
+  setupMqtt = setupMqtt,
+  closeClient = closeClient
+}
