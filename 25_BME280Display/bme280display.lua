@@ -1,11 +1,11 @@
 wifi.setmode(wifi.NULLMODE) -- disable wifi
 
-scl = 1 -- D1, GPIO5
-sda = 2 -- D2, GPIO4
+local scl = 1 -- D1, GPIO5
+local sda = 2 -- D2, GPIO4
 
-pressureLow = nil
-pressureHigh = nil
-pressureStart = nil
+local pressureLow = nil
+local pressureHigh = nil
+local pressureStart = nil
 
 function init(sda,scl) --Set up the u8glib lib
      local sla = 0x3C
@@ -43,17 +43,6 @@ function getUptimeString()
   return uptimeString
 end
 
-function getBatteryPercent(adcValue)
-  local minimumVoltage = 5.5
-  local maximumVoltage = 8.0
-
-  local adcFactor = 0.00272093
-  local voltageDividerFactor = 5.7
-
-  local percent = (adcValue * adcFactor * voltageDividerFactor - minimumVoltage)/(maximumVoltage - minimumVoltage) * 100;
-  return percent
-end
-
 function formatPressure(pressure)
   return string.format("%.3f", pressure)
 end
@@ -62,7 +51,9 @@ function getDisplayValues()
   local H, T = bme280.humi()
   local P, T = bme280.baro()
 
-  local temperature = "Temperature: " .. T/100 .. string.char(176) .. "C"
+  if H == nil or P == nil or T == nil then return nil end
+
+  local temperature = "Temperature: " .. T/100 .. " C"
   local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
   local pressure = P/10000
   local airpressure = " " .. formatPressure(pressure) .. " kPa"
@@ -77,48 +68,66 @@ function getDisplayValues()
   local pressurePeaks = "L " .. formatPressure(pressureLow) .. " H " .. formatPressure(pressureHigh)
 
   local uptime = getUptimeString()
-  local battery = string.format("%d", getBatteryPercent(adc.read(0))) .."%"
 
   local pressureDifference = formatPressure(pressureStart - pressure)
 
-  return temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference
+  return {
+    Temperature = temperature,
+    Humidity = humidity,
+    Airpressure = airpressure,
+    PressurePeaks = pressurePeaks,
+    Uptime = uptime,
+    PressureDifference = pressureDifference
+  }
 end
 
 function drawPages(display, draw)
-  local temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference = getDisplayValues()
+  local displayValues = getDisplayValues()
+
+  if displayValues == nil then
+    print("nil value read")
+    return value
+  end
+
   local startTime = tmr.now()
 
   display:clearBuffer() -- 327 us
-  draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference) -- 26483
+  draw(display, displayValues) -- 26483
   display:sendBuffer() -- 261 756 us
 
   local endTime = tmr.now()
-  print("Uptime: " .. uptime)
-  print(temperature)
-  print(humidity)
-  print("Air pressure: " .. airpressure)
-  print(pressurePeaks)
-  print("Battery: " .. battery)
-  print("Display update took " .. (endTime - startTime) .. " ms")
+
+  local displayUpdateHurationInMs = endTime - startTime
+
+  printValues(displayValues, displayUpdateHurationInMs)
+end
+
+function printValues(displayValues, displayUpdateHurationInMs)
+  print("Uptime: " .. displayValues.Uptime)
+  print(displayValues.Temperature)
+  print(displayValues.Humidity)
+  print("Air pressure: " .. displayValues.Airpressure)
+  print(displayValues.PressurePeaks)
+  print("Display update took " .. displayUpdateHurationInMs .. " ms")
   print()
 end
 
-function draw(display, temperature, humidity, airpressure, pressurePeaks, uptime, battery, pressureDifference)
-  display:drawStr(0, 00, temperature)
-  display:drawStr(0, 10, humidity)
-  display:drawStr(0, 20, "Airp.:" .. airpressure)
-  display:drawStr(0, 30, pressurePeaks)
-  display:drawStr(0, 40, "Uptime: " .. uptime)
-  display:drawStr(0, 50, " " .. pressureDifference)
+function draw(display, displayValues)
+  display:drawStr(0, 00, displayValues.Temperature)
+  display:drawStr(0, 10, displayValues.Humidity)
+  display:drawStr(0, 20, "Airp.:" .. displayValues.Airpressure)
+  display:drawStr(0, 30, displayValues.PressurePeaks)
+  display:drawStr(0, 40, "Uptime: " .. displayValues.Uptime)
+  display:drawStr(0, 50, " " .. displayValues.PressureDifference)
 end
 
 
-display = init(sda,scl)
-bme280result = bme280.setup() -- "2" is BME280
+local display = init(sda,scl)
+local bme280result = bme280.setup() -- "2" is BME280
 if bme280result ~= 2 then print("BME280 setup failed.") end
 bme280result = nil
 
-mytimer = tmr.create()
+local mytimer = tmr.create()
 
 mytimer:register(500, tmr.ALARM_AUTO, function (t) drawPages(display, draw);  end)
 mytimer:start()
