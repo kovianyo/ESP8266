@@ -54,7 +54,7 @@ function getDisplayValues()
   if H == nil or P == nil or T == nil then return nil end
 
   local temperature = "Temperature: " .. T/100 .. " C"
-  local humidity = "Humidity: " .. string.format("%d", H/1000) .. "%"
+  local humidity = "Humidity: " .. string.format("%d", H/1000) .. " %"
   local pressure = P/10000
   local airpressure = " " .. formatPressure(pressure) .. " kPa"
 
@@ -108,6 +108,7 @@ function printValues(displayValues, displayUpdateHurationInMs)
   print(displayValues.Humidity)
   print("Air pressure: " .. displayValues.Airpressure)
   print(displayValues.PressurePeaks)
+  print("Pressure difference: " .. displayValues.PressureDifference)
   print("Display update took " .. displayUpdateHurationInMs .. " ms")
   print()
 end
