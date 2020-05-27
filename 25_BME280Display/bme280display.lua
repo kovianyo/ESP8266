@@ -53,10 +53,10 @@ function getDisplayValues()
 
   if H == nil or P == nil or T == nil then return nil end
 
-  local temperature = "Temperature: " .. T/100 .. " C"
-  local humidity = "Humidity: " .. string.format("%d", H/1000) .. " %"
+  local temperature = T/100
+  local humidity = string.format("%d", H/1000)
   local pressure = P/10000
-  local airpressure = " " .. formatPressure(pressure) .. " kPa"
+  local airpressure = " " .. formatPressure(pressure)
 
   if pressureStart == nil then pressureStart = pressure end
 
@@ -65,7 +65,8 @@ function getDisplayValues()
   if pressure < pressureLow then pressureLow = pressure end
   if pressure > pressureHigh then pressureHigh = pressure end
 
-  local pressurePeaks = "L " .. formatPressure(pressureLow) .. " H " .. formatPressure(pressureHigh)
+  local pressureLowPeak = formatPressure(pressureLow)
+  local pressureHighPeak = formatPressure(pressureHigh)
 
   local uptime = getUptimeString()
 
@@ -75,7 +76,8 @@ function getDisplayValues()
     Temperature = temperature,
     Humidity = humidity,
     Airpressure = airpressure,
-    PressurePeaks = pressurePeaks,
+    PressureLowPeak = pressureLowPeak,
+    PressureHighPeak = pressureHighPeak,
     Uptime = uptime,
     PressureDifference = pressureDifference
   }
@@ -104,22 +106,22 @@ end
 
 function printValues(displayValues, displayUpdateHurationInMs)
   print("Uptime: " .. displayValues.Uptime)
-  print(displayValues.Temperature)
-  print(displayValues.Humidity)
-  print("Air pressure: " .. displayValues.Airpressure)
-  print(displayValues.PressurePeaks)
-  print("Pressure difference: " .. displayValues.PressureDifference)
+  print("Temperature: " .. displayValues.Temperature .. " C")
+  print("Humidity: " .. displayValues.Humidity .. " %")
+  print("Air pressure: " .. displayValues.Airpressure .. " kPa")
+  print("L " .. displayValues.PressureLowPeak .. " kPa, H " .. displayValues.PressureHighPeak .. " kPa")
+  print("Pressure difference: " .. displayValues.PressureDifference .. "kPa")
   print("Display update took " .. displayUpdateHurationInMs .. " ms")
   print()
 end
 
 function draw(display, displayValues)
-  display:drawStr(0, 00, displayValues.Temperature)
-  display:drawStr(0, 10, displayValues.Humidity)
-  display:drawStr(0, 20, "Airp.:" .. displayValues.Airpressure)
-  display:drawStr(0, 30, displayValues.PressurePeaks)
+  display:drawStr(0, 00, "Temperature: " .. displayValues.Temperature .. string.char(176) .. "C")
+  display:drawStr(0, 10, "Humidity: " .. displayValues.Humidity .. " %")
+  display:drawStr(0, 20, "Airp.:" .. displayValues.Airpressure .. " kPa")
+  display:drawStr(0, 30, "L " .. displayValues.PressureLowPeak .. " H " .. displayValues.PressureHighPeak)
   display:drawStr(0, 40, "Uptime: " .. displayValues.Uptime)
-  display:drawStr(0, 50, " " .. displayValues.PressureDifference)
+  display:drawStr(0, 50, " " .. displayValues.PressureDifference .. " kPa")
 end
 
 
