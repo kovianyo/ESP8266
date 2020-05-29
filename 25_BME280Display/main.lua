@@ -10,18 +10,18 @@ local pressureStart = nil
 
 local displayValues = nil
 
-local function draw(display)
-  display:drawStr(0, 00, "Temperature: " .. displayValues.Temperature .. string.char(176) .. "C")
-  display:drawStr(0, 10, "Humidity: " .. displayValues.Humidity .. " %")
-  display:drawStr(0, 20, "Airp.:" .. displayValues.Airpressure .. " kPa")
-  display:drawStr(0, 30, "L " .. displayValues.PressureLowPeak .. " H " .. displayValues.PressureHighPeak)
-  display:drawStr(0, 40, "Uptime: " .. displayValues.Uptime)
-  display:drawStr(0, 50, " " .. displayValues.PressureDifference .. " kPa")
+local function draw(display, ssd1360)
+  ssd1360.WriteLine("Temperature: " .. displayValues.Temperature .. string.char(176) .. "C")
+  ssd1360.WriteLine("Humidity: " .. displayValues.Humidity .. " %")
+  ssd1360.WriteLine("Airp.:" .. displayValues.Airpressure .. " kPa")
+  ssd1360.WriteLine("L " .. displayValues.PressureLowPeak .. " H " .. displayValues.PressureHighPeak)
+  ssd1360.WriteLine("Uptime: " .. displayValues.Uptime)
+  ssd1360.WriteLine(" " .. displayValues.PressureDifference .. " kPa")
 end
 
 local bme280sensor = dofile("bme280sensor.lua")
 
-function getUptimeString()
+local function getUptimeString()
   local uptime = tmr.time()
 
   local seconds = uptime % 60
@@ -83,7 +83,7 @@ local function updateDisplayValues()
   }
 end
 
-function printValues()
+local function printValues()
   print("Uptime: " .. displayValues.Uptime)
   print("Temperature: " .. displayValues.Temperature .. " C")
   print("Humidity: " .. displayValues.Humidity .. " %")
@@ -98,7 +98,7 @@ i2c.setup(i2cId, sda, scl, i2c.SLOW)
 bme280sensor.Setup()
 
 local ssd1360 = dofile("ssd1306.lua")
-ssd1360.Init(i2cId, draw)
+ssd1360.Init(i2cId, function (display) draw(display, ssd1360) end)
 
 local function updateDisplay()
   updateDisplayValues()
