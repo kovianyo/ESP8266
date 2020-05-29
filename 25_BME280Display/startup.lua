@@ -1,1 +1,1 @@
-node.task.post(function() dofile('bme280display.lua') end)
+node.task.post(function() dofile('main.lua') end)
