@@ -20,3 +20,10 @@ function a(...)
         print(v)
     end
 end
+
+function measure(method, methodName)
+  local start = tmr.now()
+  method()
+  local stop = tmr.now()
+  print(methodName .. " elapsed: " .. (stop - start) .. " us")
+end
