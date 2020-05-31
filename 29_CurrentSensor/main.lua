@@ -64,7 +64,7 @@ end
 
 i2c.setup(i2cId, sda, scl, i2c.SLOW)
 
-ina219 = require("ina219")
+local ina219 = require("ina219")
 ina219.init()
 
 local ssd1360 = dofile("ssd1306.lua")
