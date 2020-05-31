@@ -48,15 +48,7 @@ end
 
 -- returns 16 bit int
 function ina219.read_reg_int(reg_addr)
-  i2c.start(ina219.id)
-  i2c.address(ina219.id, ina219.devaddr, i2c.TRANSMITTER)
-  i2c.write(ina219.id,reg_addr)
-  i2c.stop(ina219.id)
-  tmr.delay(1)
-  i2c.start(ina219.id)
-  i2c.address(ina219.id, ina219.devaddr, i2c.RECEIVER)
-  local c = i2c.read(ina219.id, 2) -- read 16bit val
-  i2c.stop(ina219.id)
+  local c = ina219.read_reg_str(reg_addr)
   -- convert to 16 bit int
   local val = bit.lshift(string.byte(c, 1), 8)
   local val2 = bit.bor(val, string.byte(c, 2))
