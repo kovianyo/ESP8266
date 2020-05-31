@@ -18,7 +18,7 @@ ina219.powerLsb = 1 -- mW per bit
 function ina219.init()
   ina219.begin()
   ina219.setCalibration_32V_2A()
-  reg = ina219.read_reg_str(0x00)
+  local reg = ina219.read_reg_str(0x00)
   print("Config:" .. ina219.getHex(reg))
 end
 
@@ -31,7 +31,7 @@ function ina219.read_reg_str(reg_addr)
   tmr.delay(1)
   i2c.start(ina219.id)
   i2c.address(ina219.id, ina219.devaddr, i2c.RECEIVER)
-  c=i2c.read(ina219.id, 16) -- read 16bit val
+  local c = i2c.read(ina219.id, 16) -- read 16bit val
   i2c.stop(ina219.id)
   return c
 end
