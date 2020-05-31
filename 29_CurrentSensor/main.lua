@@ -10,9 +10,8 @@ local function draw(display, ssd1360, displayValues)
   ssd1360.WriteLine("Voltage: " .. string.format("%6.3f", displayValues.BusVoltageInVolt) .. " V")
   ssd1360.WriteLine("Current: " .. string.format("%6.1f", displayValues.CurrentInmA) .. " mA")
   ssd1360.WriteLine()
-  ssd1360.WriteLine()
+  ssd1360.WriteLine("Power: " .. displayValues.PowerInmW .. " mW")
   ssd1360.WriteLine("V_shunt: " .. displayValues.ShuntVoltageInmV .. " mV")
-  --ssd1360.WriteLine("Power: " .. displayValues.PowerInW .. " W")
   ssd1360.WriteLine("Uptime: " .. displayValues.Uptime)
 end
 
@@ -47,7 +46,7 @@ local function getDisplayValues(vals)
     BusVoltageInVolt = vals.voltageV,
     ShuntVoltageInmV = vals.shuntmV,
     CurrentInmA = vals.currentmA,
-    PowerInW = vals.powerW,
+    PowerInmW = vals.powermW,
     Uptime = uptime
   }
 
@@ -59,7 +58,7 @@ local function printValues(displayValues)
   print("Bus voltage: " .. displayValues.BusVoltageInVolt .. " V")
   print("Shunt voltage: " .. displayValues.ShuntVoltageInmV .. " mV")
   print("Current: " .. displayValues.CurrentInmA .. " mA")
-  print("Power: " .. displayValues.PowerInW .. " W")
+  print("Power: " .. displayValues.PowerInmW .. " mW")
   print()
 end
 

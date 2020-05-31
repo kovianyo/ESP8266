@@ -22,6 +22,8 @@ ina219.powerDivider_mW = 0  -- e.g. Power LSB = 1mW per bit
 ina219.currentLsb = 0 -- uA per bit
 ina219.powerLsb = 1 -- mW per bit
 
+ina219.shuntResistance = 0.1 -- Ohm (R100 resistor)
+
 function ina219.init(i2cId, scl, sda)
   ina219.i2cId = i2cId
   ina219.scl = scl
@@ -122,12 +124,16 @@ function ina219.setCalibration_32V_2A()
   -- Compute the calibration register
   -- Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   -- Cal = 4096 (0x1000)
+  local currentLsb = 0.0001 -- A per bit
+  local calibrationValue = 0.04096 / (currentLsb * ina219.shuntResistance)
   ina219.write_reg(ina219.calibration_reg, 4096)
   -- Set multipliers to convert raw current/power values
-  ina219.currentDivider_mA = 10 -- Current LSB = 100uA per bit (1000/100 = 10)
+  ina219.currentDivider_mA = currentLsb / 0.00001 -- Current LSB = 100uA per bit (1000/100 = 10)
+
+  --ina219.currentDivider_mA = 10 -- Current LSB = 100uA per bit (1000/100 = 10)
   ina219.powerDivider_mW = 1      --Power LSB = 1mW per bit (2/1)
   ina219.currentLsb = 100 -- uA per bit
-  ina219.powerLsb = 1 -- mW per bit
+  ina219.powerLsb = 2 -- mW per bit
   -- INA219_CONFIG_BVOLTAGERANGE_32V |
   --                  INA219_CONFIG_GAIN_8_320MV |
   --                  INA219_CONFIG_BADCRES_12BIT |
@@ -138,7 +144,7 @@ function ina219.setCalibration_32V_2A()
 end
 
 function ina219.getCurrent_mA()
-  -- Gets the raw current value (16-bit signed integer, so +-32767)
+  -- Gets the raw current value (16-bit signed integer, 2's complement)
   local valueInt = ina219.read_reg_int(ina219.current_reg)
   if valueInt > 32767 then valueInt = valueInt - 65537 end
   return valueInt / ina219.currentDivider_mA
@@ -148,7 +154,7 @@ function ina219.getBusVoltage_V()
   -- Gets the raw bus voltage (16-bit signed integer, so +-32767)
   local valueInt = ina219.read_reg_int(ina219.voltage_reg)
   -- Shift to the right 3 to drop CNVR and OVF and multiply by LSB
-  local val2 = bit.rshift(valueInt, 3) * 4
+  local val2 = bit.rshift(valueInt, 3) * 4 -- Bus Voltage Register resolution is 4 mV
   return val2 * 0.001
 end
 
@@ -161,7 +167,7 @@ end
 -- returns the bus power in watts
 -- actually, i don't think i have the calculation correct yet
 -- cuz this ain't watts or milliwatts. TODO
-function ina219.getBusPowerWatts()
+function ina219.getBusPower_mW()
   local valueInt = ina219.read_reg_int(ina219.power_reg)
   -- print("raw power: " .. valueInt)
   return valueInt * ina219.powerLsb
@@ -172,7 +178,7 @@ function ina219.checkVals()
   print("Config: " .. ina219.stringToHex(registerValue))
   print("Shunt Voltage: " .. ina219.getShuntVoltage_mV() .. " mV")
   print("Bus Voltage: " .. ina219.getBusVoltage_V() .. " V")
-  print("Power: " .. ina219.getBusPowerWatts() .. " mW")
+  print("Power: " .. ina219.getBusPower_mW() .. " mW")
   print("Current: " .. ina219.getCurrent_mA() .. " mA")
   print("")
 end
@@ -181,15 +187,8 @@ function ina219.getVals()
   local val = {}
   val.voltageV = ina219.getBusVoltage_V()
   val.shuntmV = ina219.getShuntVoltage_mV()
-  val.powerW = ina219.getBusPowerWatts()
-  -- sometimes the ina219 returns false current data
-  -- where the value is pegged at max so toss it if the
-  -- powerW is at 0 because that is usually when it happens
-  if val.powerW == 0 then
-    val.currentmA = 0
-  else
-    val.currentmA = ina219.getCurrent_mA()
-  end
+  val.powermW = ina219.getBusPower_mW()
+  val.currentmA = ina219.getCurrent_mA()
   return val
 end
 
