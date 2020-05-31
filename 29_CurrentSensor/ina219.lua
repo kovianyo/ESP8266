@@ -75,7 +75,7 @@ function ina219.begin()
 end
 
 function ina219.reset()
-  ina219.write_reg(0x00, 0xFFFF)
+  ina219.write_reg(ina219.configuration_reg, 0xFFFF)
 end
 
 function ina219.setCalibration_16V_400mA()
@@ -85,14 +85,14 @@ function ina219.setCalibration_16V_400mA()
   ina219.powerDivider_mW = 1  -- Power LSB = 1mW per bit
   ina219.currentLsb = 50 -- uA per bit
   ina219.powerLsb = 1 -- mW per bit
-  ina219.write_reg(0x05, 8192)
+  ina219.write_reg(ina219.calibration_reg, 8192)
   -- INA219_CONFIG_BVOLTAGERANGE_16V |
   --                  INA219_CONFIG_GAIN_1_40MV |
   --                  INA219_CONFIG_BADCRES_12BIT |
   --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
   --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   -- write_reg(0x05, 0x0000 | 0x0000 | 0x0400 | 0x0018 | 0x0007)
-  ina219.write_reg(0x00, 0x41F)
+  ina219.write_reg(ina219.configuration_reg, 0x41F)
 end
 
 function ina219.setCalibration_32V_1A()
@@ -101,7 +101,7 @@ function ina219.setCalibration_32V_1A()
   -- Compute the calibration register
   -- Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   -- Cal = 10240 (0x2800)
-  ina219.write_reg(0x05, 10240)
+  ina219.write_reg(ina219.calibration_reg, 10240)
   -- Set multipliers to convert raw current/power values
   ina219.currentDivider_mA = 25   -- Current LSB = 40uA per bit (1000/40 = 25)
   ina219.powerDivider_mW = 1      -- Power LSB = 800uW per bit
@@ -113,7 +113,7 @@ function ina219.setCalibration_32V_1A()
   --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
   --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
-  ina219.write_reg(0x00, config)
+  ina219.write_reg(ina219.configuration_reg, config)
 end
 
 function ina219.setCalibration_32V_2A()
@@ -122,7 +122,7 @@ function ina219.setCalibration_32V_2A()
   -- Compute the calibration register
   -- Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   -- Cal = 4096 (0x1000)
-  ina219.write_reg(0x05, 4096)
+  ina219.write_reg(ina219.calibration_reg, 4096)
   -- Set multipliers to convert raw current/power values
   ina219.currentDivider_mA = 10 -- Current LSB = 100uA per bit (1000/100 = 10)
   ina219.powerDivider_mW = 1      --Power LSB = 1mW per bit (2/1)
@@ -134,18 +134,18 @@ function ina219.setCalibration_32V_2A()
   --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
   --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
   local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
-  ina219.write_reg(0x00, config)
+  ina219.write_reg(ina219.configuration_reg, config)
 end
 
 function ina219.getCurrent_mA()
   -- Gets the raw current value (16-bit signed integer, so +-32767)
-  local valueInt = ina219.read_reg_int(0x04)
+  local valueInt = ina219.read_reg_int(ina219.current_reg)
   return valueInt / ina219.currentDivider_mA
 end
 
 function ina219.getBusVoltage_V()
   -- Gets the raw bus voltage (16-bit signed integer, so +-32767)
-  local valueInt = ina219.read_reg_int(0x02)
+  local valueInt = ina219.read_reg_int(ina219.voltage_reg)
   -- Shift to the right 3 to drop CNVR and OVF and multiply by LSB
   local val2 = bit.rshift(valueInt, 3) * 4
   return val2 * 0.001
@@ -153,7 +153,7 @@ end
 
 function ina219.getShuntVoltage_mV()
   -- Gets the raw shunt voltage (16-bit signed integer, so +-32767)
-  local valueInt = ina219.read_reg_int(0x01)
+  local valueInt = ina219.read_reg_int(ina219.shunt_reg)
   return valueInt * 0.01
 end
 
@@ -161,48 +161,20 @@ end
 -- actually, i don't think i have the calculation correct yet
 -- cuz this ain't watts or milliwatts. TODO
 function ina219.getBusPowerWatts()
-  local valueInt = ina219.read_reg_int(0x03)
+  local valueInt = ina219.read_reg_int(ina219.power_reg)
   return valueInt * ina219.powerLsb
 end
 
 function ina219.checkVals()
-
-  reg = ina219.read_reg_str(0x00)
-  print("Config: " .. ina219.stringToHex(reg))
-
-  -- get Shunt Voltage
-  --reg = read_reg_int(0x01)
-  --print("Shunt Voltage")
-  --print(reg)
-  --printHex(reg)
-  print("Shunt Voltage mV: " .. ina219.getShuntVoltage_mV())
-
-  -- get Bus Voltage
-  --reg = read_reg_int(0x02)
-  --print("Bus Voltage")
-  --print(reg)
-  --printHex(reg)
-  print("Bus Voltage V: " .. ina219.getBusVoltage_V())
-
-  -- get Power
-  reg = ina219.read_reg_int(0x03)
-  print("Power: " .. reg)
-  --print(reg)
-  --printHex(reg)
-  print("Power watts: " .. ina219.getBusPowerWatts())
-
-  -- get Current
-  --reg = read_reg_int(0x04)
-  --print("Current")
-  --print(reg)
-  --printHex(reg)
-
-  print("Current mA:" .. ina219.getCurrent_mA())
-
+  local registerValue = ina219.read_reg_str(ina219.configuration_reg)
+  print("Config: " .. ina219.stringToHex(registerValue))
+  print("Shunt Voltage: " .. ina219.getShuntVoltage_mV() .. " mV")
+  print("Bus Voltage: " .. ina219.getBusVoltage_V() .. " V")
+  print("Power watts: " .. ina219.getBusPowerWatts() .. " W")
+  print("Current: " .. ina219.getCurrent_mA() .. " mA")
   print("")
 end
 
--- returns an object of vals
 function ina219.getVals()
   local val = {}
   val.voltageV = ina219.getBusVoltage_V()
