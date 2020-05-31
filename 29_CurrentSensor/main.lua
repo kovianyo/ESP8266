@@ -4,14 +4,13 @@ local i2cId = 0 -- must be 0 for bme280
 local scl = 1 -- D1, GPIO5
 local sda = 2 -- D2, GPIO4
 
-local displayValues = nil
-
-local function draw(display, ssd1360)
-  ssd1360.WriteLine("Bus voltage: " .. displayValues.BusVoltageInVolt .. " V")
-  ssd1360.WriteLine("Shunt voltage:")
-  ssd1360.WriteLine(" " .. displayValues.ShuntVoltageInmV .. " mV")
+local function draw(display, ssd1360, displayValues)
+  ssd1360.WriteLine("Voltage: " .. displayValues.BusVoltageInVolt .. " V")
   ssd1360.WriteLine("Current: " .. displayValues.CurrentInmA .. " mA")
-  ssd1360.WriteLine("Power: " .. displayValues.PowerInW .. " W")
+  ssd1360.WriteLine()
+  ssd1360.WriteLine()
+  ssd1360.WriteLine("V_shunt: " .. displayValues.ShuntVoltageInmV .. " mV")
+  --ssd1360.WriteLine("Power: " .. displayValues.PowerInW .. " W")
   ssd1360.WriteLine("Uptime: " .. displayValues.Uptime)
 end
 
@@ -39,21 +38,21 @@ local function getUptimeString()
 end
 
 
-local function updateDisplayValues()
-  local vals = ina219.getVals()
-
+local function getDisplayValues(vals)
   local uptime = getUptimeString()
 
-  displayValues = {
+  local displayValues = {
     BusVoltageInVolt = vals.voltageV,
     ShuntVoltageInmV = vals.shuntmV,
     CurrentInmA = vals.currentmA,
     PowerInW = vals.powerW,
     Uptime = uptime
   }
+
+  return displayValues
 end
 
-local function printValues()
+local function printValues(displayValues)
   print("Uptime: " .. displayValues.Uptime)
   print("Bus voltage: " .. displayValues.BusVoltageInVolt .. " V")
   print("Shunt voltage: " .. displayValues.ShuntVoltageInmV .. " mV")
@@ -65,15 +64,16 @@ end
 i2c.setup(i2cId, sda, scl, i2c.SLOW)
 
 local ina219 = require("ina219")
-ina219.init()
+ina219.init(i2cId, scl, sda)
 
 local ssd1360 = dofile("ssd1306.lua")
-ssd1360.Init(i2cId, function (display) draw(display, ssd1360) end)
+ssd1360.Init(i2cId, function (display, displayValues) draw(display, ssd1360, displayValues) end)
 
 local function updateDisplay()
-  updateDisplayValues()
-  ssd1360.DrawDisplay()
-  printValues()
+  local vals = ina219.getVals()
+  local displayValues = getDisplayValues(vals)
+  ssd1360.DrawDisplay(displayValues)
+  printValues(displayValues)
 end
 
 local mytimer = tmr.create()

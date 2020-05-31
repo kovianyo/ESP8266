@@ -1,5 +1,5 @@
 
-local currentDraw = nil
+local _draw = nil
 
 local display = nil
 
@@ -9,7 +9,7 @@ local _blink = false
 local blinkColor = true
 -- Set up the u8glib lib. ic2 must be initialized at this point
 local function init(i2cId, draw, blink)
-  currentDraw = draw
+  _draw = draw
   if blink ~= nil then _blink = blink end
   local sla = 0x3C
   display = u8g2.ssd1306_i2c_128x64_noname(i2cId, sla)
@@ -21,10 +21,10 @@ local function init(i2cId, draw, blink)
   display:setFlipMode(1)
 end
 
-local function drawDisplay()
-  if currentDraw ~= nil then
+local function drawDisplay(...)
+  if _draw ~= nil then
     display:clearBuffer()
-    currentDraw(display)
+    _draw(display, ...)
     if _blink then
       if blinkColor then display:setDrawColor(1) else display:setDrawColor(0) end
       display:drawPixel(127,63)
@@ -37,7 +37,7 @@ local function drawDisplay()
 end
 
 local function writeLine(text)
-  display:drawStr(0, rowIndex * 10, text)
+  if text ~= nil then display:drawStr(0, rowIndex * 10, text) end
   rowIndex = rowIndex + 1
 end
 
