@@ -5,8 +5,10 @@ local scl = 1 -- D1, GPIO5
 local sda = 2 -- D2, GPIO4
 
 local function draw(display, ssd1360, displayValues)
-  ssd1360.WriteLine("Voltage: " .. displayValues.BusVoltageInVolt .. " V")
-  ssd1360.WriteLine("Current: " .. displayValues.CurrentInmA .. " mA")
+  -- ssd1360.WriteLine("Voltage: " .. string.format("%6.3f", displayValues.BusVoltageInVolt) .. " V")
+  -- ssd1360.WriteLine("Current: " .. string.format("%7.1f", displayValues.CurrentInmA) .. " mA")
+  ssd1360.WriteLine("Voltage: " .. string.format("%6.3f", displayValues.BusVoltageInVolt) .. " V")
+  ssd1360.WriteLine("Current: " .. string.format("%6.1f", displayValues.CurrentInmA) .. " mA")
   ssd1360.WriteLine()
   ssd1360.WriteLine()
   ssd1360.WriteLine("V_shunt: " .. displayValues.ShuntVoltageInmV .. " mV")
