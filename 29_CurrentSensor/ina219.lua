@@ -7,6 +7,13 @@ ina219.sda = 2
 ina219.scl = 1
 ina219.devaddr = 0x40   -- 1000000 (A0+A1=GND)
 
+ina219.configuration_reg = 0x00
+ina219.shunt_reg = 0x01
+ina219.voltage_reg = 0x02
+ina219.power_reg = 0x03
+ina219.current_reg = 0x04
+ina219.calibration_reg = 0x05
+
 -- Set multipliers to convert raw current/power values
 ina219.maxVoltage = 0 -- configured for max 32volts by default after init
 ina219.maxCurrentmA = 0 -- configured for max 2A by default after init
@@ -18,8 +25,8 @@ ina219.powerLsb = 1 -- mW per bit
 function ina219.init()
   ina219.begin()
   ina219.setCalibration_32V_2A()
-  local reg = ina219.read_reg_str(0x00)
-  print("Config:" .. ina219.getHex(reg))
+  local reg = ina219.read_reg_str(ina219.configuration_reg)
+  print("Config: " .. reg)
 end
 
 -- user defined function: read from reg_addr content of dev_addr
@@ -31,7 +38,7 @@ function ina219.read_reg_str(reg_addr)
   tmr.delay(1)
   i2c.start(ina219.id)
   i2c.address(ina219.id, ina219.devaddr, i2c.RECEIVER)
-  local c = i2c.read(ina219.id, 16) -- read 16bit val
+  local c = i2c.read(ina219.id, 2) -- read 16bit val
   i2c.stop(ina219.id)
   return c
 end
@@ -45,7 +52,7 @@ function ina219.read_reg_int(reg_addr)
   tmr.delay(1)
   i2c.start(ina219.id)
   i2c.address(ina219.id, ina219.devaddr, i2c.RECEIVER)
-  local c = i2c.read(ina219.id, 16) -- read 16bit val
+  local c = i2c.read(ina219.id, 2) -- read 16bit val
   i2c.stop(ina219.id)
   -- convert to 16 bit int
   local val = bit.lshift(string.byte(c, 1), 8)
@@ -220,10 +227,10 @@ end
 
 function ina219.getHex(val)
   --print("len of val:" .. string.len(val))
-  local s = ""
-  for i = 1, string.len(val) do
-    if string.byte(val, i - 1) then
-      s = s .. string.format("%2X", string.byte(val, i - 1)) .. " "
+  local s = "0x"
+  for i = 0, string.len(val) do
+    if string.byte(val, i) then
+      s = s .. string.format("%2X", string.byte(val, i)) .. " "
     end
   end
   --print(s)
