@@ -2,9 +2,9 @@
 
 -- ChiliPeppr INA219 Module ina219.lua v4
 local ina219 = {}
-ina219.id = 0
-ina219.sda = 2
+ina219.i2cId = 0
 ina219.scl = 1
+ina219.sda = 2
 ina219.devaddr = 0x40   -- 1000000 (A0+A1=GND)
 
 ina219.configuration_reg = 0x00
@@ -22,7 +22,10 @@ ina219.powerDivider_mW = 0  -- e.g. Power LSB = 1mW per bit
 ina219.currentLsb = 0 -- uA per bit
 ina219.powerLsb = 1 -- mW per bit
 
-function ina219.init()
+function ina219.init(i2cId, scl, sda)
+  ina219.i2cId = i2cId
+  ina219.scl = scl
+  ina219.sda = sda
   ina219.begin()
   ina219.setCalibration_32V_2A()
   local registerValue = ina219.read_reg_str(ina219.configuration_reg)
@@ -31,15 +34,15 @@ end
 
 -- user defined function: read from reg_addr content of dev_addr
 function ina219.read_reg_str(reg_addr)
-  i2c.start(ina219.id)
-  i2c.address(ina219.id, ina219.devaddr, i2c.TRANSMITTER)
-  i2c.write(ina219.id,reg_addr)
-  i2c.stop(ina219.id)
+  i2c.start(ina219.i2cId)
+  i2c.address(ina219.i2cId, ina219.devaddr, i2c.TRANSMITTER)
+  i2c.write(ina219.i2cId,reg_addr)
+  i2c.stop(ina219.i2cId)
   tmr.delay(1)
-  i2c.start(ina219.id)
-  i2c.address(ina219.id, ina219.devaddr, i2c.RECEIVER)
-  local c = i2c.read(ina219.id, 2) -- read 16bit val
-  i2c.stop(ina219.id)
+  i2c.start(ina219.i2cId)
+  i2c.address(ina219.i2cId, ina219.devaddr, i2c.RECEIVER)
+  local c = i2c.read(ina219.i2cId, 2) -- read 16bit val
+  i2c.stop(ina219.i2cId)
   return c
 end
 
@@ -62,22 +65,21 @@ end
 
 function ina219.write_reg(reg_addr, reg_val)
   print("writing reg:" .. reg_addr .. ", reg_val:" .. reg_val)
-  i2c.start(ina219.id)
-  i2c.address(ina219.id, ina219.devaddr, i2c.TRANSMITTER)
-  local bw = i2c.write(ina219.id, reg_addr)
+  i2c.start(ina219.i2cId)
+  i2c.address(ina219.i2cId, ina219.devaddr, i2c.TRANSMITTER)
+  local bw = i2c.write(ina219.i2cId, reg_addr)
   --print("Bytes written: " .. bw)
   -- upper 8 bits
-  local bw2 = i2c.write(ina219.id, bit.rshift(reg_val, 8))
+  local bw2 = i2c.write(ina219.i2cId, bit.rshift(reg_val, 8))
   --print("Bytes written: " .. bw2)
   -- lower 8 bits
-  local bw3 = i2c.write(ina219.id, bit.band(reg_val, 0xFF))
+  local bw3 = i2c.write(ina219.i2cId, bit.band(reg_val, 0xFF))
   --print("Bytes written: " .. bw3)
-  i2c.stop(ina219.id)
+  i2c.stop(ina219.i2cId)
 end
 
 function ina219.begin()
-  -- initialize i2c, set pin1 as sda, set pin2 as scl
-  i2c.setup(ina219.id, ina219.sda, ina219.scl, i2c.SLOW)
+  i2c.setup(ina219.i2cId, ina219.sda, ina219.scl, i2c.SLOW)
 end
 
 function ina219.reset()
