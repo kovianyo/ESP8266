@@ -56,7 +56,7 @@ function ina219.read_reg_int(reg_addr)
 end
 
 function ina219.write_reg(reg_addr, reg_val)
-  print("writing reg:" .. reg_addr .. ", reg_val:" .. reg_val)
+  print("writing register: " .. reg_addr .. " with value " .. reg_val)
   i2c.start(ina219.i2cId)
   i2c.address(ina219.i2cId, ina219.devaddr, i2c.TRANSMITTER)
   local bw = i2c.write(ina219.i2cId, reg_addr)
@@ -140,6 +140,7 @@ end
 function ina219.getCurrent_mA()
   -- Gets the raw current value (16-bit signed integer, so +-32767)
   local valueInt = ina219.read_reg_int(ina219.current_reg)
+  if valueInt > 32767 then valueInt = valueInt - 65537 end
   return valueInt / ina219.currentDivider_mA
 end
 
@@ -162,6 +163,7 @@ end
 -- cuz this ain't watts or milliwatts. TODO
 function ina219.getBusPowerWatts()
   local valueInt = ina219.read_reg_int(ina219.power_reg)
+  -- print("raw power: " .. valueInt)
   return valueInt * ina219.powerLsb
 end
 
@@ -170,7 +172,7 @@ function ina219.checkVals()
   print("Config: " .. ina219.stringToHex(registerValue))
   print("Shunt Voltage: " .. ina219.getShuntVoltage_mV() .. " mV")
   print("Bus Voltage: " .. ina219.getBusVoltage_V() .. " V")
-  print("Power watts: " .. ina219.getBusPowerWatts() .. " W")
+  print("Power: " .. ina219.getBusPowerWatts() .. " mW")
   print("Current: " .. ina219.getCurrent_mA() .. " mA")
   print("")
 end
