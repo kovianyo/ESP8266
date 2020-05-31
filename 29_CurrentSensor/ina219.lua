@@ -25,8 +25,8 @@ ina219.powerLsb = 1 -- mW per bit
 function ina219.init()
   ina219.begin()
   ina219.setCalibration_32V_2A()
-  local reg = ina219.read_reg_str(ina219.configuration_reg)
-  print("Config: " .. reg)
+  local registerValue = ina219.read_reg_str(ina219.configuration_reg)
+  print("Configuration register: " .. stringToBin(registerValue) .. " (" .. ina219.stringToHex(registerValue) .. ")")
 end
 
 -- user defined function: read from reg_addr content of dev_addr
@@ -174,7 +174,7 @@ end
 function ina219.checkVals()
 
   reg = ina219.read_reg_str(0x00)
-  print("Config: " .. ina219.getHex(reg))
+  print("Config: " .. ina219.stringToHex(reg))
 
   -- get Shunt Voltage
   --reg = read_reg_int(0x01)
@@ -225,16 +225,42 @@ function ina219.getVals()
   return val
 end
 
-function ina219.getHex(val)
+function ina219.stringToHex(val)
   --print("len of val:" .. string.len(val))
-  local s = "0x"
-  for i = 0, string.len(val) do
+  local parts = {}
+
+  for i = 1, string.len(val) do
     if string.byte(val, i) then
-      s = s .. string.format("%2X", string.byte(val, i)) .. " "
+      parts[i] = string.format("%2X", string.byte(val, i))
     end
   end
   --print(s)
-  return s
+  local result = "0x " .. table.concat(parts, " ")
+  return result
+end
+
+function byteToBin(value)
+  local result = ""
+
+  for i = 7, 0, -1 do
+    if bit.isset(value, i) then
+        result = result .. "1"
+    else
+        result = result .. "0"
+    end
+  end
+
+  return result
+end
+
+function stringToBin(value)
+  local parts = {}
+  for i = 0, string.len(value) - 1 do
+    parts[i + 1] = byteToBin(string.byte(value, i + 1))
+  end
+
+  local result = "0b " .. table.concat(parts, " ")
+  return result
 end
 
 --ina219.init()
