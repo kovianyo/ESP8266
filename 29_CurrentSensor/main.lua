@@ -62,7 +62,12 @@ local function printValues(displayValues)
   print()
 end
 
-i2c.setup(i2cId, sda, scl, i2c.SLOW)
+local speed = i2c.setup(i2cId, sda, scl, i2c.SLOW)
+if speed == 0 then
+  print("Could not initialze IIC bus")
+  return
+end
+speed = nil
 
 local ina219 = require("ina219")
 ina219.init(i2cId, scl, sda)
