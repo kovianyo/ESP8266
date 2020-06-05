@@ -1,9 +1,8 @@
--- http://chilipeppr2.blogspot.com/2016/01/detect-current-and-voltage-from-nodemcu.html
+-- IC maximum voltage: 26 V
 
--- ChiliPeppr INA219 Module ina219.lua v4
 local ina219 = {}
 ina219.i2cId = 0
-ina219.devaddr = 0x40   -- 1000000 (A0+A1=GND)
+ina219.device_address = 0x40   -- 1000000 (A0+A1=GND)
 
 ina219.configuration_reg = 0x00
 ina219.shunt_reg = 0x01
@@ -12,19 +11,14 @@ ina219.power_reg = 0x03
 ina219.current_reg = 0x04
 ina219.calibration_reg = 0x05
 
--- Set multipliers to convert raw current/power values
-ina219.maxVoltage = 0 -- configured for max 32volts by default after init
-ina219.maxCurrentmA = 0 -- configured for max 2A by default after init
-ina219.currentDivider_mA = 0 -- e.g. Current LSB = 50uA per bit (1000/50 = 20)
-ina219.powerDivider_mW = 0  -- e.g. Power LSB = 1mW per bit
-ina219.currentLsb = 0 -- uA per bit
-ina219.powerLsb = 1 -- mW per bit
+ina219.currentLsb = 0 -- mA per bit
+ina219.powerLsb = 0 -- mW per bit
 
 ina219.shuntResistance = 0.1 -- Ohm (R100 resistor)
 
 function ina219.init(i2cId)
   ina219.i2cId = i2cId
-  ina219.setCalibration_32V_2A()
+  ina219.setCurrentResolution(0.1)
   local registerValue = ina219.read_reg_str(ina219.configuration_reg)
   print("Configuration register: " .. stringToBin(registerValue) .. " (" .. ina219.stringToHex(registerValue) .. ")")
 end
@@ -32,12 +26,12 @@ end
 -- user defined function: read from reg_addr content of dev_addr
 function ina219.read_reg_str(reg_addr)
   i2c.start(ina219.i2cId)
-  i2c.address(ina219.i2cId, ina219.devaddr, i2c.TRANSMITTER)
+  i2c.address(ina219.i2cId, ina219.device_address, i2c.TRANSMITTER)
   i2c.write(ina219.i2cId,reg_addr)
   i2c.stop(ina219.i2cId)
   tmr.delay(1)
   i2c.start(ina219.i2cId)
-  i2c.address(ina219.i2cId, ina219.devaddr, i2c.RECEIVER)
+  i2c.address(ina219.i2cId, ina219.device_address, i2c.RECEIVER)
   local c = i2c.read(ina219.i2cId, 2) -- read 16bit val
   i2c.stop(ina219.i2cId)
   return c
@@ -55,7 +49,7 @@ end
 function ina219.write_reg(reg_addr, reg_val)
   print("writing register: " .. reg_addr .. " with value " .. reg_val)
   i2c.start(ina219.i2cId)
-  i2c.address(ina219.i2cId, ina219.devaddr, i2c.TRANSMITTER)
+  i2c.address(ina219.i2cId, ina219.device_address, i2c.TRANSMITTER)
   local bw = i2c.write(ina219.i2cId, reg_addr)
   --print("Bytes written: " .. bw)
   -- upper 8 bits
@@ -75,93 +69,42 @@ function ina219.reset()
   ina219.write_reg(ina219.configuration_reg, 0xFFFF)
 end
 
-function ina219.setCalibration_16V_400mA()
-  ina219.maxVoltage = 16
-  ina219.maxCurrentmA = 400
-  ina219.currentDivider_mA = 20 -- Current LSB = 50uA per bit (1000/50 = 20)
-  ina219.powerDivider_mW = 1  -- Power LSB = 1mW per bit
-  ina219.currentLsb = 50 -- uA per bit
-  ina219.powerLsb = 1 -- mW per bit
-  ina219.write_reg(ina219.calibration_reg, 8192)
-  -- INA219_CONFIG_BVOLTAGERANGE_16V |
-  --                  INA219_CONFIG_GAIN_1_40MV |
-  --                  INA219_CONFIG_BADCRES_12BIT |
-  --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
-  --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-  -- write_reg(0x05, 0x0000 | 0x0000 | 0x0400 | 0x0018 | 0x0007)
-  ina219.write_reg(ina219.configuration_reg, 0x41F)
+function ina219.setCurrentResolution(currentLsb)
+  ina219.currentLsb = currentLsb -- mA per bit
+  local calibrationValue = 40.96 / (ina219.currentLsb * ina219.shuntResistance)
+  ina219.write_reg(ina219.calibration_reg, calibrationValue)
+  ina219.powerLsb = 20 * ina219.currentLsb -- mW per bit
 end
 
-function ina219.setCalibration_32V_1A()
-  ina219.maxVoltage = 32
-  ina219.maxCurrentmA = 1000
-  -- Compute the calibration register
-  -- Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
-  -- Cal = 10240 (0x2800)
-  ina219.write_reg(ina219.calibration_reg, 10240)
-  -- Set multipliers to convert raw current/power values
-  ina219.currentDivider_mA = 25   -- Current LSB = 40uA per bit (1000/40 = 25)
-  ina219.powerDivider_mW = 1      -- Power LSB = 800uW per bit
-  ina219.currentLsb = 40 -- uA per bit
-  ina219.powerLsb = 0.8 -- mW per bit
-  -- INA219_CONFIG_BVOLTAGERANGE_32V |
-  --                  INA219_CONFIG_GAIN_8_320MV |
-  --                  INA219_CONFIG_BADCRES_12BIT |
-  --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
-  --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-  local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
-  ina219.write_reg(ina219.configuration_reg, config)
-end
-
-function ina219.setCalibration_32V_2A()
-  ina219.maxVoltage = 32
-  ina219.maxCurrentmA = 2000
-  -- Compute the calibration register
-  -- Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
-  -- Cal = 4096 (0x1000)
-  local currentLsb = 0.0001 -- A per bit
-  local calibrationValue = 0.04096 / (currentLsb * ina219.shuntResistance)
-  ina219.write_reg(ina219.calibration_reg, 4096)
-  -- Set multipliers to convert raw current/power values
-  ina219.currentDivider_mA = currentLsb / 0.00001 -- Current LSB = 100uA per bit (1000/100 = 10)
-
-  --ina219.currentDivider_mA = 10 -- Current LSB = 100uA per bit (1000/100 = 10)
-  ina219.powerDivider_mW = 1      --Power LSB = 1mW per bit (2/1)
-  ina219.currentLsb = 100 -- uA per bit
-  ina219.powerLsb = 2 -- mW per bit
-  -- INA219_CONFIG_BVOLTAGERANGE_32V |
-  --                  INA219_CONFIG_GAIN_8_320MV |
-  --                  INA219_CONFIG_BADCRES_12BIT |
-  --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
-  --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-  --local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
-  --ina219.write_reg(ina219.configuration_reg, 0x199F)
+function decodeTwosComplement(valueInt)
+  if valueInt > 32767 then valueInt = valueInt - 65537 end
+  return valueInt
 end
 
 function ina219.getCurrent_mA()
   -- Gets the raw current value (16-bit signed integer, 2's complement)
   local valueInt = ina219.read_reg_int(ina219.current_reg)
-  if valueInt > 32767 then valueInt = valueInt - 65537 end
-  return valueInt / ina219.currentDivider_mA
+  local value = decodeTwosComplement(valueInt)
+  return value * ina219.currentLsb
 end
 
 function ina219.getBusVoltage_V()
   -- Gets the raw bus voltage (16-bit signed integer, so +-32767)
   local valueInt = ina219.read_reg_int(ina219.voltage_reg)
   -- Shift to the right 3 to drop CNVR and OVF and multiply by LSB
-  local val2 = bit.rshift(valueInt, 3) * 4 -- Bus Voltage Register resolution is 4 mV
-  return val2 * 0.001
+  local voltageIn_mV = bit.rshift(valueInt, 3) * 4 -- Bus Voltage Register resolution is 4 mV
+  local voltageIn_V = voltageIn_mV / 1000
+  return voltageIn_V
 end
 
 function ina219.getShuntVoltage_mV()
   -- Gets the raw shunt voltage (16-bit signed integer, so +-32767)
   local valueInt = ina219.read_reg_int(ina219.shunt_reg)
-  return valueInt * 0.01
+  local value = decodeTwosComplement(valueInt)
+  local voltageIn_mV = value / 100 -- shunt voltage resolution is 0.01 mV
+  return voltageIn_mV
 end
 
--- returns the bus power in watts
--- actually, i don't think i have the calculation correct yet
--- cuz this ain't watts or milliwatts. TODO
 function ina219.getBusPower_mW()
   local valueInt = ina219.read_reg_int(ina219.power_reg)
   -- print("raw power: " .. valueInt)
