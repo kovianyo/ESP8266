@@ -3,8 +3,6 @@
 -- ChiliPeppr INA219 Module ina219.lua v4
 local ina219 = {}
 ina219.i2cId = 0
-ina219.scl = 1
-ina219.sda = 2
 ina219.devaddr = 0x40   -- 1000000 (A0+A1=GND)
 
 ina219.configuration_reg = 0x00
@@ -24,11 +22,8 @@ ina219.powerLsb = 1 -- mW per bit
 
 ina219.shuntResistance = 0.1 -- Ohm (R100 resistor)
 
-function ina219.init(i2cId, scl, sda)
+function ina219.init(i2cId)
   ina219.i2cId = i2cId
-  ina219.scl = scl
-  ina219.sda = sda
-  ina219.begin()
   ina219.setCalibration_32V_2A()
   local registerValue = ina219.read_reg_str(ina219.configuration_reg)
   print("Configuration register: " .. stringToBin(registerValue) .. " (" .. ina219.stringToHex(registerValue) .. ")")
@@ -72,8 +67,8 @@ function ina219.write_reg(reg_addr, reg_val)
   i2c.stop(ina219.i2cId)
 end
 
-function ina219.begin()
-  i2c.setup(ina219.i2cId, ina219.sda, ina219.scl, i2c.SLOW)
+function ina219.initi2c(sda, scl)
+  i2c.setup(ina219.i2cId, sda, scl, i2c.SLOW)
 end
 
 function ina219.reset()
@@ -139,8 +134,8 @@ function ina219.setCalibration_32V_2A()
   --                  INA219_CONFIG_BADCRES_12BIT |
   --                  INA219_CONFIG_SADCRES_12BIT_1S_532US |
   --                  INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-  local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
-  ina219.write_reg(ina219.configuration_reg, config)
+  --local config = bit.bor(0x2000, 0x1800, 0x0400, 0x0018, 0x0007)
+  --ina219.write_reg(ina219.configuration_reg, 0x199F)
 end
 
 function ina219.getCurrent_mA()

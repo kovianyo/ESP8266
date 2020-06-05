@@ -70,7 +70,7 @@ end
 speed = nil
 
 local ina219 = require("ina219")
-ina219.init(i2cId, scl, sda)
+ina219.init(i2cId)
 
 local ssd1360 = dofile("ssd1306.lua")
 ssd1360.Init(i2cId, function (display, displayValues) draw(display, ssd1360, displayValues) end)
