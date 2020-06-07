@@ -13,21 +13,21 @@ local function getCommand(payload)
   return postData
 end
 
-local gconn = nil
+local _gconn = nil
 
 local function closeConnection(connection)
   --print("clsoing connection")
   connection:close()
-  gconn = nil
+  _gconn = nil
   --print("sent.")
   --print()
 end
 
 local function finish()
-  print("finish")
-  if (gconn ~= nil) then
-    gconn:on("sent", closeConnection)
-    gconn = nil
+  print(" ")
+  if (_gconn ~= nil) then
+    _gconn:on("sent", closeConnection)
+    _gconn = nil
     -- print("finish finished")
   end
 end
@@ -37,9 +37,9 @@ local timer1 = tmr.create()
 
 -- no print() in this method!
 local function s_output(str)
-  if (gconn ~= nil) then
+  if (_gconn ~= nil) then
     timer1:stop()
-    gconn:send(str)
+    _gconn:send(str)
     timer1:start()
   end
 end
@@ -53,7 +53,7 @@ local function handle(connection, payload, header)
       node.output(s_output, 1)
 
       timer1:register(1000, tmr.ALARM_SINGLE, function (t) finish();  end)
-      gconn = connection
+      _gconn = connection
       node.input(command)
       return true
     end

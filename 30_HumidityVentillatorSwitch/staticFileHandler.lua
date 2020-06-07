@@ -36,9 +36,8 @@ local function handle(connection, payload, header)
   fileName = string.sub(fileName, 2) -- remove first character ("/")
   if not file.exists(fileName) then return false end
   print("Sending file '" .. fileName .. "'")
-  conn = connection
-  conn:on("sent", sendFile)
-  sendFile(conn, fileName)
+  connection:on("sent", sendFile)
+  sendFile(connection, fileName)
 
   return true
 end
