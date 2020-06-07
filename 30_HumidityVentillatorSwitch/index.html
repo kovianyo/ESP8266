@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kovi AirSensor</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <script src="terminal.js"></script>
+  </head>
+  <body>
+    <h1>KoviHumiWeb</h1>
+    <form method="post">
+      <div><textarea id="command" name="command" rows="4" cols="50">print(node.heap())</textarea></div>
+      <div><input type="button" onclick="runCommand()" value="Run"></div>
+    </form>
+    <div id="resultDiv" style="white-space: pre; padding-top: 10px;"></div>
+  </body>
+</html>

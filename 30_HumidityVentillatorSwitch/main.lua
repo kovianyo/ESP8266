@@ -39,16 +39,12 @@ end
 local function onGotIP()
   blinker.setLevel(3)
 
---[[
-  local mytimer = tmr.create()
-  mytimer:register(500, tmr.ALARM_AUTO, function (t) measure();  end)
-  mytimer:start()
-]]--
-  --local actions = dofile("actions.lua")
-  local requestProcessor = dofile("processRequest.lua")
-  --requestProcessor.setActions(actions)
   local webserver = dofile("webserver.lua")
-  webserver.Setup(requestProcessor.Process)
+  local staticFileHandler = dofile("staticFileHandler.lua")
+  webserver.AddHandler(staticFileHandler)
+  local terminalHandler = dofile("terminalHandler.lua")
+  webserver.AddHandler(terminalHandler)
+  webserver.Setup()
 end
 
 local function onDisconneted()
