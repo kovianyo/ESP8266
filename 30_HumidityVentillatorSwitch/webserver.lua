@@ -104,6 +104,12 @@ end
 
 local function listener(conn)
  conn:on("receive", onreceive)
+ conn:on("connection", function(sck, c)
+   local port, ip = sck:getpeer()
+   if ip ~= nil and port ~= nil then
+     print("cleint connected: " .. ip .. ":" .. port)
+   end
+ end)
 end
 
 
@@ -113,7 +119,6 @@ local function setupWebServer(requestProcessor)
 
   local srv = net.createServer(net.TCP)
   srv:listen(80, listener)
-
 
   print("Listening...")
   print("")
